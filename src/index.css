@@ -77,30 +77,3 @@
     @apply active:scale-95 transition-transform duration-150;
   }
 }
-
-@keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-8px); }
-}
-
-@keyframes coin-pop {
-  0% { transform: scale(0) translateY(0); opacity: 1; }
-  50% { transform: scale(1.2) translateY(-20px); opacity: 1; }
-  100% { transform: scale(0.8) translateY(-40px); opacity: 0; }
-}
-
-@keyframes heart-float {
-  0% { transform: scale(0) translateY(0); opacity: 1; }
-  100% { transform: scale(1) translateY(-60px); opacity: 0; }
-}
-
-@keyframes wiggle {
-  0%, 100% { transform: rotate(0deg); }
-  25% { transform: rotate(-5deg); }
-  75% { transform: rotate(5deg); }
-}
-
-@keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 0 0 hsla(25, 85%, 57%, 0.4); }
-  50% { box-shadow: 0 0 20px 8px hsla(25, 85%, 57%, 0.15); }
-}
