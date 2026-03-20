@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 
 export type CatMood = "happy" | "content" | "tired" | "hungry" | "sad";
-export type GameTab = "cat" | "village" | "shop" | "quests" | "leaderboard";
+export type GameTab = "cat" | "village" | "shop" | "quests" | "leaderboard" | "admin";
 
 export interface ShopItem {
   id: string;
