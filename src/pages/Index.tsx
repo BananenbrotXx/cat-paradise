@@ -25,7 +25,7 @@ export default function Index() {
     pet, play, rest, buyItem, visitLocation, claimQuest,
     isAnimating, floatingCoins, floatingHearts,
     notification, completedQuests, totalQuests,
-    actionCooldowns,
+    actionCooldowns, skipAllCooldowns,
   } = useCatGame();
 
   // Auth state listener
