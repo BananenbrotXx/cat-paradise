@@ -52,8 +52,7 @@ export default function CatDisplay({ mood, isAnimating, lastInteraction, floatin
       {floatingCoins.map((coin) => (
         <div
           key={coin.id}
-          className="absolute top-1/4 left-1/2 pointer-events-none z-10 font-bold text-coin-foreground"
-          style={{ animation: "coin-pop 1s ease-out forwards" }}
+          className="absolute top-1/4 left-1/2 pointer-events-none z-10 font-bold text-coin-foreground animate-coin-pop"
         >
           +{coin.amount} 🪙
         </div>
