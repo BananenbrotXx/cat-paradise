@@ -77,7 +77,7 @@ export default function Index() {
         is_admin: isAdmin,
       });
     }
-  }, [user, cat.coins, cat.level]);
+  }, [user, cat.coins, cat.level, isAdmin]);
 
   // Auto-save every 15 seconds
   useEffect(() => {
