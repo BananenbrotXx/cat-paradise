@@ -26,7 +26,7 @@ export default function LeaderboardScreen({ currentUserId }: LeaderboardScreenPr
       setLoading(true);
       const { data } = await supabase
         .from("leaderboard")
-        .select("display_name, coins, level, user_id")
+        .select("display_name, coins, level, user_id, is_admin")
         .order(sortBy, { ascending: false })
         .limit(50);
       setEntries(data || []);
