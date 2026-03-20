@@ -45,7 +45,12 @@ export default function Index() {
   useEffect(() => {
     if (!user) { setIsAdmin(false); return; }
     const checkAdmin = async () => {
-      const { data } = await supabase.rpc("has_role", { _user_id: user.id, _role: "admin" });
+      const { data } = await supabase
+        .from("user_roles" as any)
+        .select("role")
+        .eq("user_id", user.id)
+        .eq("role", "admin")
+        .maybeSingle();
       setIsAdmin(!!data);
     };
     checkAdmin();
