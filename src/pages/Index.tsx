@@ -74,6 +74,7 @@ export default function Index() {
         coins: cat.coins,
         level: cat.level,
         display_name: displayName,
+        is_admin: isAdmin,
       });
     }
   }, [user, cat.coins, cat.level]);
