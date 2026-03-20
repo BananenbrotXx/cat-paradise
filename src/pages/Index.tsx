@@ -172,6 +172,10 @@ export default function Index() {
         {activeTab === "leaderboard" && (
           <LeaderboardScreen currentUserId={user.id} />
         )}
+
+        {activeTab === "admin" && isAdmin && (
+          <AdminPanel onSkipCooldowns={skipAllCooldowns} />
+        )}
       </main>
 
       <BottomNav activeTab={activeTab} onTabChange={setActiveTab} questBadge={claimableQuests} />
