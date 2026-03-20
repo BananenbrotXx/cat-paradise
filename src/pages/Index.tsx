@@ -41,6 +41,16 @@ export default function Index() {
     return () => subscription.unsubscribe();
   }, []);
 
+  // Check admin role
+  useEffect(() => {
+    if (!user) { setIsAdmin(false); return; }
+    const checkAdmin = async () => {
+      const { data } = await supabase.rpc("has_role", { _user_id: user.id, _role: "admin" });
+      setIsAdmin(!!data);
+    };
+    checkAdmin();
+  }, [user]);
+
   // Save score to leaderboard periodically
   const saveScore = useCallback(async () => {
     if (!user) return;
