@@ -96,6 +96,15 @@ export default {
           "0%, 100%": { boxShadow: "0 0 0 0 hsla(25, 85%, 57%, 0.4)" },
           "50%": { boxShadow: "0 0 20px 8px hsla(25, 85%, 57%, 0.15)" },
         },
+        "coin-pop": {
+          "0%": { transform: "scale(0) translateY(0)", opacity: "1" },
+          "50%": { transform: "scale(1.2) translateY(-20px)", opacity: "1" },
+          "100%": { transform: "scale(0.8) translateY(-40px)", opacity: "0" },
+        },
+        "heart-float": {
+          "0%": { transform: "scale(0) translateY(0)", opacity: "1" },
+          "100%": { transform: "scale(1) translateY(-60px)", opacity: "0" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -103,6 +112,8 @@ export default {
         float: "float 3s ease-in-out infinite",
         wiggle: "wiggle 0.5s ease-in-out",
         "pulse-glow": "pulse-glow 2s ease-in-out infinite",
+        "coin-pop": "coin-pop 1s ease-out forwards",
+        "heart-float": "heart-float 1s ease-out forwards",
       },
     },
   },
