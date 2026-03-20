@@ -178,7 +178,7 @@ export default function Index() {
         )}
       </main>
 
-      <BottomNav activeTab={activeTab} onTabChange={setActiveTab} questBadge={claimableQuests} />
+      <BottomNav activeTab={activeTab} onTabChange={setActiveTab} questBadge={claimableQuests} isAdmin={isAdmin} />
     </div>
   );
 }
