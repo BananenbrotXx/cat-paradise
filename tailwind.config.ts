@@ -58,6 +58,8 @@ export default {
         hunger: "hsl(var(--hunger))",
         happiness: "hsl(var(--happiness))",
         energy: "hsl(var(--energy))",
+        quest: "hsl(var(--quest))",
+        village: "hsl(var(--village))",
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",
@@ -93,8 +95,8 @@ export default {
           "75%": { transform: "rotate(5deg)" },
         },
         "pulse-glow": {
-          "0%, 100%": { boxShadow: "0 0 0 0 hsla(25, 85%, 57%, 0.4)" },
-          "50%": { boxShadow: "0 0 20px 8px hsla(25, 85%, 57%, 0.15)" },
+          "0%, 100%": { boxShadow: "0 0 0 0 hsla(22, 90%, 55%, 0.4)" },
+          "50%": { boxShadow: "0 0 20px 8px hsla(22, 90%, 55%, 0.15)" },
         },
         "coin-pop": {
           "0%": { transform: "scale(0) translateY(0)", opacity: "1" },
@@ -105,6 +107,18 @@ export default {
           "0%": { transform: "scale(0) translateY(0)", opacity: "1" },
           "100%": { transform: "scale(1) translateY(-60px)", opacity: "0" },
         },
+        "section-enter": {
+          "0%": { opacity: "0", transform: "translateY(12px)", filter: "blur(4px)" },
+          "100%": { opacity: "1", transform: "translateY(0)", filter: "blur(0px)" },
+        },
+        "tab-fade": {
+          "0%": { opacity: "0", transform: "translateY(6px)" },
+          "100%": { opacity: "1", transform: "translateY(0)" },
+        },
+        shimmer: {
+          "0%": { backgroundPosition: "-200% 0" },
+          "100%": { backgroundPosition: "200% 0" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -114,6 +128,7 @@ export default {
         "pulse-glow": "pulse-glow 2s ease-in-out infinite",
         "coin-pop": "coin-pop 1s ease-out forwards",
         "heart-float": "heart-float 1s ease-out forwards",
+        shimmer: "shimmer 2s linear infinite",
       },
     },
   },

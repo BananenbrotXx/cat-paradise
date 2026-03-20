@@ -1,13 +1,22 @@
 import { useState } from "react";
 import { SHOP_ITEMS, type ShopItem } from "@/hooks/useCatGame";
+import { ShoppingBag, Sparkles, UtensilsCrossed, Gift } from "lucide-react";
 
 interface ShopProps {
   coins: number;
   onBuy: (item: ShopItem) => boolean;
 }
 
+type ShopTab = "food" | "toy" | "decor";
+
+const TAB_CONFIG: { id: ShopTab; label: string; icon: React.ReactNode }[] = [
+  { id: "food", label: "Futter", icon: <UtensilsCrossed className="w-3.5 h-3.5" /> },
+  { id: "toy", label: "Spielzeug", icon: <Sparkles className="w-3.5 h-3.5" /> },
+  { id: "decor", label: "Deko", icon: <Gift className="w-3.5 h-3.5" /> },
+];
+
 export default function Shop({ coins, onBuy }: ShopProps) {
-  const [tab, setTab] = useState<"food" | "toy">("food");
+  const [tab, setTab] = useState<ShopTab>("food");
   const [boughtId, setBoughtId] = useState<string | null>(null);
 
   const items = SHOP_ITEMS.filter((i) => i.type === tab);
@@ -21,38 +30,39 @@ export default function Shop({ coins, onBuy }: ShopProps) {
   };
 
   return (
-    <div className="game-card p-5 space-y-4">
+    <div className="space-y-4 tab-content-enter" key="shop">
+      {/* Header */}
       <div className="flex items-center justify-between">
-        <h3 className="font-bold text-lg">🛒 Shop</h3>
-        <div className="flex items-center gap-1 font-bold text-coin-foreground bg-accent/60 px-3 py-1 rounded-full">
-          <span>🪙</span>
-          <span className="tabular-nums">{coins}</span>
+        <div className="flex items-center gap-2">
+          <ShoppingBag className="w-5 h-5 text-primary" />
+          <h2 className="text-lg font-extrabold tracking-tight">Mochis Laden</h2>
+        </div>
+        <div className="flex items-center gap-1.5 font-extrabold text-coin-foreground bg-accent/50 px-3 py-1 rounded-full text-sm">
+          🪙 <span className="tabular-nums">{coins}</span>
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-2">
-        <button
-          onClick={() => setTab("food")}
-          className={`px-4 py-2 rounded-xl text-sm font-semibold transition-colors bounce-click ${
-            tab === "food" ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:bg-muted/80"
-          }`}
-        >
-          🍽️ Futter
-        </button>
-        <button
-          onClick={() => setTab("toy")}
-          className={`px-4 py-2 rounded-xl text-sm font-semibold transition-colors bounce-click ${
-            tab === "toy" ? "bg-secondary text-secondary-foreground" : "bg-muted text-muted-foreground hover:bg-muted/80"
-          }`}
-        >
-          🎮 Spielzeug
-        </button>
+      <div className="flex gap-1.5 bg-muted/50 p-1 rounded-xl">
+        {TAB_CONFIG.map((t) => (
+          <button
+            key={t.id}
+            onClick={() => setTab(t.id)}
+            className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold transition-all bounce-click ${
+              tab === t.id
+                ? "bg-card shadow-sm text-foreground"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            {t.icon}
+            {t.label}
+          </button>
+        ))}
       </div>
 
-      {/* Items */}
-      <div className="grid grid-cols-2 gap-2">
-        {items.map((item) => {
+      {/* Items grid */}
+      <div className="grid grid-cols-2 gap-2.5">
+        {items.map((item, i) => {
           const canAfford = coins >= item.price;
           const justBought = boughtId === item.id;
 
@@ -61,17 +71,31 @@ export default function Shop({ coins, onBuy }: ShopProps) {
               key={item.id}
               onClick={() => handleBuy(item)}
               disabled={!canAfford}
-              className={`flex flex-col items-center gap-1 p-3 rounded-xl border-2 transition-all bounce-click ${
-                justBought
-                  ? "border-health bg-health/10 scale-95"
-                  : canAfford
-                  ? "border-transparent bg-background hover:border-primary/30 hover:shadow-md"
-                  : "border-transparent bg-background opacity-50 cursor-not-allowed"
-              }`}
+              className={`game-card p-3.5 text-left transition-all bounce-click section-reveal ${
+                justBought ? "ring-2 ring-health scale-[0.97]" : ""
+              } ${!canAfford ? "opacity-45 cursor-not-allowed" : ""}`}
+              style={{ animationDelay: `${i * 60}ms` }}
             >
-              <span className="text-2xl">{item.emoji}</span>
-              <span className="text-xs font-semibold leading-tight">{item.name}</span>
-              <span className="text-xs font-bold text-coin-foreground">🪙 {item.price}</span>
+              <div className="flex items-start justify-between mb-2">
+                <span className="text-2xl">{item.emoji}</span>
+                <span className="text-xs font-extrabold text-coin-foreground bg-accent/40 px-2 py-0.5 rounded-full">
+                  🪙 {item.price}
+                </span>
+              </div>
+              <div className="text-xs font-bold leading-tight">{item.name}</div>
+              <div className="text-[10px] text-muted-foreground mt-0.5 leading-snug">{item.description}</div>
+              {/* Stat boosts */}
+              <div className="flex flex-wrap gap-1 mt-2">
+                {item.hungerRestore && (
+                  <span className="text-[9px] font-bold bg-hunger/10 text-hunger px-1.5 py-0.5 rounded">+{item.hungerRestore} 🍗</span>
+                )}
+                {item.happinessBoost && item.happinessBoost > 0 && (
+                  <span className="text-[9px] font-bold bg-happiness/10 text-happiness px-1.5 py-0.5 rounded">+{item.happinessBoost} 💕</span>
+                )}
+                {item.energyBoost && item.energyBoost > 0 && (
+                  <span className="text-[9px] font-bold bg-energy/10 text-energy px-1.5 py-0.5 rounded">+{item.energyBoost} ⚡</span>
+                )}
+              </div>
             </button>
           );
         })}

@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,42 +6,44 @@
 
 @layer base {
   :root {
-    --background: 30 50% 97%;
-    --foreground: 25 30% 18%;
+    --background: 32 45% 97%;
+    --foreground: 25 35% 15%;
 
-    --card: 35 45% 95%;
-    --card-foreground: 25 30% 18%;
+    --card: 33 40% 94%;
+    --card-foreground: 25 35% 15%;
 
-    --popover: 30 50% 97%;
-    --popover-foreground: 25 30% 18%;
+    --popover: 32 45% 97%;
+    --popover-foreground: 25 35% 15%;
 
-    --primary: 25 85% 57%;
+    --primary: 22 90% 55%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 340 55% 65%;
+    --secondary: 345 50% 62%;
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 30 25% 90%;
-    --muted-foreground: 25 15% 50%;
+    --muted: 30 20% 90%;
+    --muted-foreground: 25 12% 48%;
 
-    --accent: 45 90% 65%;
-    --accent-foreground: 25 30% 18%;
+    --accent: 42 95% 62%;
+    --accent-foreground: 30 40% 15%;
 
     --destructive: 0 72% 55%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 30 25% 85%;
-    --input: 30 25% 85%;
-    --ring: 25 85% 57%;
+    --border: 30 20% 86%;
+    --input: 30 20% 86%;
+    --ring: 22 90% 55%;
 
     --radius: 1rem;
 
-    --coin: 45 90% 50%;
-    --coin-foreground: 35 60% 20%;
-    --health: 145 60% 45%;
-    --hunger: 25 85% 57%;
-    --happiness: 340 55% 65%;
-    --energy: 200 70% 55%;
+    --coin: 42 95% 48%;
+    --coin-foreground: 35 55% 18%;
+    --health: 152 55% 42%;
+    --hunger: 22 90% 55%;
+    --happiness: 345 50% 62%;
+    --energy: 205 65% 52%;
+    --quest: 270 45% 58%;
+    --village: 155 50% 42%;
 
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
@@ -61,6 +63,7 @@
 
   body {
     @apply bg-background text-foreground font-nunito antialiased;
+    overflow-wrap: break-word;
   }
 }
 
@@ -70,10 +73,31 @@
   }
 
   .game-card {
-    @apply bg-card rounded-2xl shadow-md hover:shadow-lg transition-shadow duration-300;
+    @apply bg-card rounded-2xl shadow-[0_2px_12px_-2px_rgba(0,0,0,0.08)] hover:shadow-[0_4px_20px_-4px_rgba(0,0,0,0.12)] transition-shadow duration-300;
   }
 
   .bounce-click {
-    @apply active:scale-95 transition-transform duration-150;
+    @apply active:scale-[0.97] transition-transform duration-150;
+  }
+
+  .section-reveal {
+    @apply opacity-0 translate-y-3;
+    animation: section-enter 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  .section-reveal-delay-1 {
+    animation-delay: 80ms;
+  }
+
+  .section-reveal-delay-2 {
+    animation-delay: 160ms;
+  }
+
+  .section-reveal-delay-3 {
+    animation-delay: 240ms;
+  }
+
+  .tab-content-enter {
+    animation: tab-fade 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   }
 }
