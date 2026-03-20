@@ -18,6 +18,7 @@ import { LogOut } from "lucide-react";
 export default function Index() {
   const [user, setUser] = useState<User | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   const {
     cat, quests, village, activeTab, setActiveTab,
