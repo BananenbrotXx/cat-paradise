@@ -81,8 +81,7 @@
   }
 
   .section-reveal {
-    @apply opacity-0 translate-y-3;
-    animation: section-enter 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    animation: sectionEnter 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
   }
 
   .section-reveal-delay-1 {
@@ -98,6 +97,24 @@
   }
 
   .tab-content-enter {
-    animation: tab-fade 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    animation: tabFade 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
   }
+}
+
+@-webkit-keyframes sectionEnter {
+  from { opacity: 0; transform: translateY(12px); filter: blur(4px); }
+  to { opacity: 1; transform: translateY(0); filter: blur(0px); }
+}
+@keyframes sectionEnter {
+  from { opacity: 0; transform: translateY(12px); filter: blur(4px); }
+  to { opacity: 1; transform: translateY(0); filter: blur(0px); }
+}
+
+@-webkit-keyframes tabFade {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes tabFade {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
 }
