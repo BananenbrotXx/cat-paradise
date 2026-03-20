@@ -1,5 +1,5 @@
 import type { GameTab } from "@/hooks/useCatGame";
-import { Cat, MapPin, ShoppingBag, Scroll } from "lucide-react";
+import { Cat, MapPin, ShoppingBag, Scroll, Trophy } from "lucide-react";
 
 interface BottomNavProps {
   activeTab: GameTab;
@@ -12,6 +12,7 @@ const TABS: { id: GameTab; label: string; icon: React.FC<{ className?: string }>
   { id: "village", label: "Dorf", icon: MapPin },
   { id: "shop", label: "Shop", icon: ShoppingBag },
   { id: "quests", label: "Quests", icon: Scroll },
+  { id: "leaderboard", label: "Rangliste", icon: Trophy },
 ];
 
 export default function BottomNav({ activeTab, onTabChange, questBadge }: BottomNavProps) {
@@ -27,7 +28,7 @@ export default function BottomNav({ activeTab, onTabChange, questBadge }: Bottom
             <button
               key={tab.id}
               onClick={() => onTabChange(tab.id)}
-              className={`flex-1 flex flex-col items-center gap-0.5 py-3 transition-colors bounce-click relative ${
+              className={`flex-1 flex flex-col items-center gap-0.5 py-2.5 transition-colors bounce-click relative ${
                 isActive ? "text-primary" : "text-muted-foreground hover:text-foreground"
               }`}
             >
@@ -39,9 +40,9 @@ export default function BottomNav({ activeTab, onTabChange, questBadge }: Bottom
                   </div>
                 )}
               </div>
-              <span className="text-[10px] font-bold">{tab.label}</span>
+              <span className="text-[9px] font-bold">{tab.label}</span>
               {isActive && (
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 rounded-full bg-primary" />
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-6 h-0.5 rounded-full bg-primary" />
               )}
             </button>
           );
