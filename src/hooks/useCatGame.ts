@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 
 export type CatMood = "happy" | "content" | "tired" | "hungry" | "sad";
-export type GameTab = "cat" | "village" | "shop" | "quests";
+export type GameTab = "cat" | "village" | "shop" | "quests" | "leaderboard";
 
 export interface ShopItem {
   id: string;
@@ -34,7 +34,7 @@ export interface VillageLocation {
   icon: string;
   description: string;
   action: string;
-  cooldown: number; // seconds
+  cooldown: number;
   lastVisited: number | null;
   coinReward: number;
   statBoost: { hunger?: number; happiness?: number; energy?: number };
@@ -54,6 +54,15 @@ export interface CatState {
   xp: number;
   xpToNext: number;
 }
+
+export interface ActionCooldowns {
+  pet: number | null;
+  play: number | null;
+  rest: number | null;
+}
+
+const ACTION_COOLDOWN = 30; // 30 seconds
+const VILLAGE_COOLDOWN = 300; // 5 minutes
 
 export const SHOP_ITEMS: ShopItem[] = [
   { id: "kibble", name: "Trockenfutter", emoji: "🥣", price: 5, type: "food", description: "Einfach aber nahrhaft", hungerRestore: 20, energyBoost: 5 },
@@ -80,12 +89,12 @@ const INITIAL_QUESTS: Quest[] = [
 ];
 
 const VILLAGE_LOCATIONS: VillageLocation[] = [
-  { id: "park", name: "Katzenpark", icon: "🌳", description: "Ein grüner Ort zum Erkunden und Schmetterlinge jagen.", action: "Erkunden", cooldown: 30, lastVisited: null, coinReward: 8, statBoost: { happiness: 12, energy: -8 } },
-  { id: "market", name: "Fischmarkt", icon: "🐟", description: "Frischer Fang des Tages! Probier eine Kostprobe.", action: "Probieren", cooldown: 45, lastVisited: null, coinReward: 5, statBoost: { hunger: 20, happiness: 5 } },
-  { id: "library", name: "Gemütliche Bibliothek", icon: "📚", description: "Ein ruhiger Ort zum Ausruhen zwischen den Bücherregalen.", action: "Nickerchen", cooldown: 60, lastVisited: null, coinReward: 6, statBoost: { energy: 25, happiness: 8 } },
-  { id: "fountain", name: "Dorfbrunnen", icon: "⛲", description: "Das Plätschern des Wassers beruhigt die Seele.", action: "Trinken", cooldown: 20, lastVisited: null, coinReward: 4, statBoost: { hunger: 5, energy: 10, happiness: 10 } },
-  { id: "bakery", name: "Katzenbäckerei", icon: "🧁", description: "Der Duft von frischen Leckerlis liegt in der Luft!", action: "Naschen", cooldown: 40, lastVisited: null, coinReward: 7, statBoost: { hunger: 15, happiness: 15 } },
-  { id: "garden", name: "Kräutergarten", icon: "🌻", description: "Katzenminze und duftende Blumen soweit das Auge reicht.", action: "Schnüffeln", cooldown: 35, lastVisited: null, coinReward: 10, statBoost: { happiness: 20, energy: -3 } },
+  { id: "park", name: "Katzenpark", icon: "🌳", description: "Ein grüner Ort zum Erkunden und Schmetterlinge jagen.", action: "Erkunden", cooldown: VILLAGE_COOLDOWN, lastVisited: null, coinReward: 8, statBoost: { happiness: 12, energy: -8 } },
+  { id: "market", name: "Fischmarkt", icon: "🐟", description: "Frischer Fang des Tages! Probier eine Kostprobe.", action: "Probieren", cooldown: VILLAGE_COOLDOWN, lastVisited: null, coinReward: 5, statBoost: { hunger: 20, happiness: 5 } },
+  { id: "library", name: "Gemütliche Bibliothek", icon: "📚", description: "Ein ruhiger Ort zum Ausruhen zwischen den Bücherregalen.", action: "Nickerchen", cooldown: VILLAGE_COOLDOWN, lastVisited: null, coinReward: 6, statBoost: { energy: 25, happiness: 8 } },
+  { id: "fountain", name: "Dorfbrunnen", icon: "⛲", description: "Das Plätschern des Wassers beruhigt die Seele.", action: "Trinken", cooldown: VILLAGE_COOLDOWN, lastVisited: null, coinReward: 4, statBoost: { hunger: 5, energy: 10, happiness: 10 } },
+  { id: "bakery", name: "Katzenbäckerei", icon: "🧁", description: "Der Duft von frischen Leckerlis liegt in der Luft!", action: "Naschen", cooldown: VILLAGE_COOLDOWN, lastVisited: null, coinReward: 7, statBoost: { hunger: 15, happiness: 15 } },
+  { id: "garden", name: "Kräutergarten", icon: "🌻", description: "Katzenminze und duftende Blumen soweit das Auge reicht.", action: "Schnüffeln", cooldown: VILLAGE_COOLDOWN, lastVisited: null, coinReward: 10, statBoost: { happiness: 20, energy: -3 } },
 ];
 
 function calculateMood(state: Pick<CatState, "hunger" | "happiness" | "energy">): CatMood {
@@ -107,6 +116,18 @@ function calculateMultiplier(state: Pick<CatState, "hunger" | "happiness" | "ene
 
 function xpForLevel(level: number) {
   return Math.floor(50 * Math.pow(1.4, level - 1));
+}
+
+export function getCooldownRemaining(lastTime: number | null, cooldownSec: number): number {
+  if (!lastTime) return 0;
+  return Math.max(0, Math.ceil(cooldownSec - (Date.now() - lastTime) / 1000));
+}
+
+export function formatCooldown(seconds: number): string {
+  if (seconds <= 0) return "Bereit!";
+  const m = Math.floor(seconds / 60);
+  const s = seconds % 60;
+  return m > 0 ? `${m}:${s.toString().padStart(2, "0")}` : `${s}s`;
 }
 
 const INITIAL_STATE: CatState = {
@@ -133,7 +154,15 @@ export function useCatGame() {
   const [floatingHearts, setFloatingHearts] = useState<number[]>([]);
   const [isAnimating, setIsAnimating] = useState(false);
   const [notification, setNotification] = useState<string | null>(null);
+  const [actionCooldowns, setActionCooldowns] = useState<ActionCooldowns>({ pet: null, play: null, rest: null });
   const coinIdRef = useRef(0);
+  const [, setTick] = useState(0);
+
+  // Force re-render for cooldown timers
+  useEffect(() => {
+    const interval = setInterval(() => setTick((t) => t + 1), 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   // Decay stats over time
   useEffect(() => {
@@ -150,14 +179,6 @@ export function useCatGame() {
         return next;
       });
     }, 3000);
-    return () => clearInterval(interval);
-  }, []);
-
-  // Update village cooldowns
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setVillage((prev) => prev.map((loc) => ({ ...loc })));
-    }, 1000);
     return () => clearInterval(interval);
   }, []);
 
@@ -202,12 +223,8 @@ export function useCatGame() {
   const claimQuest = useCallback((questId: string) => {
     const quest = quests.find((q) => q.id === questId);
     if (!quest || !quest.completed || quest.claimed) return;
-
     setQuests((prev) => prev.map((q) => q.id === questId ? { ...q, claimed: true } : q));
-    setCat((prev) => ({
-      ...prev,
-      coins: prev.coins + Math.round(quest.reward * prev.multiplier),
-    }));
+    setCat((prev) => ({ ...prev, coins: prev.coins + Math.round(quest.reward * prev.multiplier) }));
     addXp(quest.reward);
   }, [quests, addXp]);
 
@@ -223,22 +240,19 @@ export function useCatGame() {
     setTimeout(() => setFloatingHearts((prev) => prev.filter((h) => h !== id)), 1000);
   }, []);
 
+  const isActionReady = useCallback((action: keyof ActionCooldowns) => {
+    return getCooldownRemaining(actionCooldowns[action], ACTION_COOLDOWN) <= 0;
+  }, [actionCooldowns]);
+
   const pet = useCallback(() => {
-    if (isAnimating) return;
+    if (isAnimating || !isActionReady("pet")) return;
     setIsAnimating(true);
+    setActionCooldowns((prev) => ({ ...prev, pet: Date.now() }));
     setTimeout(() => setIsAnimating(false), 600);
 
     setCat((prev) => {
-      const baseReward = 3;
-      const reward = Math.round(baseReward * prev.multiplier);
-      const next = {
-        ...prev,
-        happiness: Math.min(100, prev.happiness + 8),
-        energy: Math.max(0, prev.energy - 2),
-        coins: prev.coins + reward,
-        lastInteraction: "pet",
-        totalInteractions: prev.totalInteractions + 1,
-      };
+      const reward = Math.round(3 * prev.multiplier);
+      const next = { ...prev, happiness: Math.min(100, prev.happiness + 8), energy: Math.max(0, prev.energy - 2), coins: prev.coins + reward, lastInteraction: "pet", totalInteractions: prev.totalInteractions + 1 };
       next.mood = calculateMood(next);
       next.multiplier = calculateMultiplier(next);
       addFloatingCoin(reward);
@@ -247,26 +261,17 @@ export function useCatGame() {
     });
     addXp(2);
     updateQuestProgress("pet");
-  }, [isAnimating, addFloatingCoin, addFloatingHeart, addXp, updateQuestProgress]);
+  }, [isAnimating, isActionReady, addFloatingCoin, addFloatingHeart, addXp, updateQuestProgress]);
 
   const play = useCallback(() => {
-    if (isAnimating) return;
-    if (cat.energy < 10) return;
+    if (isAnimating || cat.energy < 10 || !isActionReady("play")) return;
     setIsAnimating(true);
+    setActionCooldowns((prev) => ({ ...prev, play: Date.now() }));
     setTimeout(() => setIsAnimating(false), 600);
 
     setCat((prev) => {
-      const baseReward = 5;
-      const reward = Math.round(baseReward * prev.multiplier);
-      const next = {
-        ...prev,
-        happiness: Math.min(100, prev.happiness + 15),
-        energy: Math.max(0, prev.energy - 12),
-        hunger: Math.max(0, prev.hunger - 5),
-        coins: prev.coins + reward,
-        lastInteraction: "play",
-        totalInteractions: prev.totalInteractions + 1,
-      };
+      const reward = Math.round(5 * prev.multiplier);
+      const next = { ...prev, happiness: Math.min(100, prev.happiness + 15), energy: Math.max(0, prev.energy - 12), hunger: Math.max(0, prev.hunger - 5), coins: prev.coins + reward, lastInteraction: "play", totalInteractions: prev.totalInteractions + 1 };
       next.mood = calculateMood(next);
       next.multiplier = calculateMultiplier(next);
       addFloatingCoin(reward);
@@ -274,24 +279,17 @@ export function useCatGame() {
     });
     addXp(3);
     updateQuestProgress("play");
-  }, [isAnimating, cat.energy, addFloatingCoin, addXp, updateQuestProgress]);
+  }, [isAnimating, cat.energy, isActionReady, addFloatingCoin, addXp, updateQuestProgress]);
 
   const rest = useCallback(() => {
-    if (isAnimating) return;
+    if (isAnimating || !isActionReady("rest")) return;
     setIsAnimating(true);
+    setActionCooldowns((prev) => ({ ...prev, rest: Date.now() }));
     setTimeout(() => setIsAnimating(false), 600);
 
     setCat((prev) => {
-      const baseReward = 2;
-      const reward = Math.round(baseReward * prev.multiplier);
-      const next = {
-        ...prev,
-        energy: Math.min(100, prev.energy + 25),
-        happiness: Math.min(100, prev.happiness + 3),
-        coins: prev.coins + reward,
-        lastInteraction: "rest",
-        totalInteractions: prev.totalInteractions + 1,
-      };
+      const reward = Math.round(2 * prev.multiplier);
+      const next = { ...prev, energy: Math.min(100, prev.energy + 25), happiness: Math.min(100, prev.happiness + 3), coins: prev.coins + reward, lastInteraction: "rest", totalInteractions: prev.totalInteractions + 1 };
       next.mood = calculateMood(next);
       next.multiplier = calculateMultiplier(next);
       addFloatingCoin(reward);
@@ -299,19 +297,12 @@ export function useCatGame() {
     });
     addXp(1);
     updateQuestProgress("rest");
-  }, [isAnimating, addFloatingCoin, addXp, updateQuestProgress]);
+  }, [isAnimating, isActionReady, addFloatingCoin, addXp, updateQuestProgress]);
 
   const buyItem = useCallback((item: ShopItem) => {
     if (cat.coins < item.price) return false;
-
     setCat((prev) => {
-      const next = {
-        ...prev,
-        coins: prev.coins - item.price,
-        hunger: Math.min(100, prev.hunger + (item.hungerRestore || 0)),
-        happiness: Math.min(100, prev.happiness + (item.happinessBoost || 0)),
-        energy: Math.min(100, Math.max(0, prev.energy + (item.energyBoost || 0))),
-      };
+      const next = { ...prev, coins: prev.coins - item.price, hunger: Math.min(100, prev.hunger + (item.hungerRestore || 0)), happiness: Math.min(100, prev.happiness + (item.happinessBoost || 0)), energy: Math.min(100, Math.max(0, prev.energy + (item.energyBoost || 0))) };
       next.mood = calculateMood(next);
       next.multiplier = calculateMultiplier(next);
       return next;
@@ -323,25 +314,14 @@ export function useCatGame() {
   }, [cat.coins, addXp, updateQuestProgress]);
 
   const visitLocation = useCallback((locationId: string) => {
-    const now = Date.now();
     const loc = village.find((l) => l.id === locationId);
     if (!loc) return false;
+    if (getCooldownRemaining(loc.lastVisited, loc.cooldown) > 0) return false;
 
-    if (loc.lastVisited && (now - loc.lastVisited) / 1000 < loc.cooldown) return false;
-
-    setVillage((prev) =>
-      prev.map((l) => l.id === locationId ? { ...l, lastVisited: now } : l)
-    );
-
+    setVillage((prev) => prev.map((l) => l.id === locationId ? { ...l, lastVisited: Date.now() } : l));
     setCat((prev) => {
       const reward = Math.round(loc.coinReward * prev.multiplier);
-      const next = {
-        ...prev,
-        coins: prev.coins + reward,
-        hunger: Math.min(100, prev.hunger + (loc.statBoost.hunger || 0)),
-        happiness: Math.min(100, prev.happiness + (loc.statBoost.happiness || 0)),
-        energy: Math.min(100, Math.max(0, prev.energy + (loc.statBoost.energy || 0))),
-      };
+      const next = { ...prev, coins: prev.coins + reward, hunger: Math.min(100, prev.hunger + (loc.statBoost.hunger || 0)), happiness: Math.min(100, prev.happiness + (loc.statBoost.happiness || 0)), energy: Math.min(100, Math.max(0, prev.energy + (loc.statBoost.energy || 0))) };
       next.mood = calculateMood(next);
       next.multiplier = calculateMultiplier(next);
       addFloatingCoin(reward);
@@ -353,25 +333,12 @@ export function useCatGame() {
   }, [village, addFloatingCoin, addXp, updateQuestProgress]);
 
   const completedQuests = quests.filter((q) => q.completed).length;
-  const totalQuests = quests.length;
 
   return {
-    cat,
-    quests,
-    village,
-    activeTab,
-    setActiveTab,
-    pet,
-    play,
-    rest,
-    buyItem,
-    visitLocation,
-    claimQuest,
-    isAnimating,
-    floatingCoins,
-    floatingHearts,
-    notification,
-    completedQuests,
-    totalQuests,
+    cat, quests, village, activeTab, setActiveTab,
+    pet, play, rest, buyItem, visitLocation, claimQuest,
+    isAnimating, floatingCoins, floatingHearts,
+    notification, completedQuests, totalQuests: quests.length,
+    actionCooldowns,
   };
 }
