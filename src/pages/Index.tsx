@@ -9,6 +9,7 @@ import Shop from "@/components/Shop";
 import VillageScreen from "@/components/VillageScreen";
 import QuestScreen from "@/components/QuestScreen";
 import LeaderboardScreen from "@/components/LeaderboardScreen";
+import AdminPanel from "@/components/AdminPanel";
 import BottomNav from "@/components/BottomNav";
 import NotificationToast from "@/components/NotificationToast";
 import AuthScreen from "@/components/AuthScreen";
