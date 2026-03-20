@@ -62,11 +62,8 @@ export default function CatDisplay({ mood, isAnimating, lastInteraction, floatin
       {floatingHearts.map((id) => (
         <div
           key={id}
-          className="absolute top-1/3 pointer-events-none z-10 text-2xl"
-          style={{
-            left: `${40 + Math.random() * 20}%`,
-            animation: "heart-float 1s ease-out forwards",
-          }}
+          className="absolute top-1/3 pointer-events-none z-10 text-2xl animate-heart-float"
+          style={{ left: `${40 + Math.random() * 20}%` }}
         >
           ❤️
         </div>
