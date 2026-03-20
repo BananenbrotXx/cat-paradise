@@ -9,6 +9,7 @@ import Shop from "@/components/Shop";
 import VillageScreen from "@/components/VillageScreen";
 import QuestScreen from "@/components/QuestScreen";
 import LeaderboardScreen from "@/components/LeaderboardScreen";
+import AdminPanel from "@/components/AdminPanel";
 import BottomNav from "@/components/BottomNav";
 import NotificationToast from "@/components/NotificationToast";
 import AuthScreen from "@/components/AuthScreen";
@@ -17,13 +18,14 @@ import { LogOut } from "lucide-react";
 export default function Index() {
   const [user, setUser] = useState<User | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   const {
     cat, quests, village, activeTab, setActiveTab,
     pet, play, rest, buyItem, visitLocation, claimQuest,
     isAnimating, floatingCoins, floatingHearts,
     notification, completedQuests, totalQuests,
-    actionCooldowns,
+    actionCooldowns, skipAllCooldowns,
   } = useCatGame();
 
   // Auth state listener
@@ -38,6 +40,21 @@ export default function Index() {
     });
     return () => subscription.unsubscribe();
   }, []);
+
+  // Check admin role
+  useEffect(() => {
+    if (!user) { setIsAdmin(false); return; }
+    const checkAdmin = async () => {
+      const { data } = await supabase
+        .from("user_roles" as any)
+        .select("role")
+        .eq("user_id", user.id)
+        .eq("role", "admin")
+        .maybeSingle();
+      setIsAdmin(!!data);
+    };
+    checkAdmin();
+  }, [user]);
 
   // Save score to leaderboard periodically
   const saveScore = useCallback(async () => {
@@ -54,6 +71,7 @@ export default function Index() {
         coins: cat.coins,
         level: cat.level,
         display_name: displayName,
+        is_admin: isAdmin,
       }).eq("user_id", user.id);
     } else {
       await supabase.from("leaderboard").insert({
@@ -61,9 +79,10 @@ export default function Index() {
         coins: cat.coins,
         level: cat.level,
         display_name: displayName,
+        is_admin: isAdmin,
       });
     }
-  }, [user, cat.coins, cat.level]);
+  }, [user, cat.coins, cat.level, isAdmin]);
 
   // Auto-save every 15 seconds
   useEffect(() => {
@@ -160,9 +179,13 @@ export default function Index() {
         {activeTab === "leaderboard" && (
           <LeaderboardScreen currentUserId={user.id} />
         )}
+
+        {activeTab === "admin" && isAdmin && (
+          <AdminPanel onSkipCooldowns={skipAllCooldowns} />
+        )}
       </main>
 
-      <BottomNav activeTab={activeTab} onTabChange={setActiveTab} questBadge={claimableQuests} />
+      <BottomNav activeTab={activeTab} onTabChange={setActiveTab} questBadge={claimableQuests} isAdmin={isAdmin} />
     </div>
   );
 }

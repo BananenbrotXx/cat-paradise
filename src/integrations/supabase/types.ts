@@ -14,11 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      banned_users: {
+        Row: {
+          banned_by: string
+          created_at: string
+          id: string
+          reason: string | null
+          user_id: string
+        }
+        Insert: {
+          banned_by: string
+          created_at?: string
+          id?: string
+          reason?: string | null
+          user_id: string
+        }
+        Update: {
+          banned_by?: string
+          created_at?: string
+          id?: string
+          reason?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       leaderboard: {
         Row: {
           coins: number
           display_name: string
           id: string
+          is_admin: boolean
           level: number
           updated_at: string
           user_id: string
@@ -27,6 +52,7 @@ export type Database = {
           coins?: number
           display_name?: string
           id?: string
+          is_admin?: boolean
           level?: number
           updated_at?: string
           user_id: string
@@ -35,6 +61,7 @@ export type Database = {
           coins?: number
           display_name?: string
           id?: string
+          is_admin?: boolean
           level?: number
           updated_at?: string
           user_id?: string
@@ -68,15 +95,39 @@ export type Database = {
         }
         Relationships: []
       }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "user"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -203,6 +254,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "user"],
+    },
   },
 } as const

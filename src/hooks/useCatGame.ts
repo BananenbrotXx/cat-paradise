@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 
 export type CatMood = "happy" | "content" | "tired" | "hungry" | "sad";
-export type GameTab = "cat" | "village" | "shop" | "quests" | "leaderboard";
+export type GameTab = "cat" | "village" | "shop" | "quests" | "leaderboard" | "admin";
 
 export interface ShopItem {
   id: string;
@@ -334,11 +334,17 @@ export function useCatGame() {
 
   const completedQuests = quests.filter((q) => q.completed).length;
 
+  const skipAllCooldowns = useCallback(() => {
+    setActionCooldowns({ pet: null, play: null, rest: null });
+    setVillage((prev) => prev.map((l) => ({ ...l, lastVisited: null })));
+    showNotification("⚡ Alle Cooldowns zurückgesetzt!");
+  }, [showNotification]);
+
   return {
     cat, quests, village, activeTab, setActiveTab,
     pet, play, rest, buyItem, visitLocation, claimQuest,
     isAnimating, floatingCoins, floatingHearts,
     notification, completedQuests, totalQuests: quests.length,
-    actionCooldowns,
+    actionCooldowns, skipAllCooldowns,
   };
 }

@@ -7,6 +7,7 @@ interface LeaderboardEntry {
   coins: number;
   level: number;
   user_id: string;
+  is_admin: boolean;
 }
 
 type SortBy = "coins" | "level";
@@ -25,7 +26,7 @@ export default function LeaderboardScreen({ currentUserId }: LeaderboardScreenPr
       setLoading(true);
       const { data } = await supabase
         .from("leaderboard")
-        .select("display_name, coins, level, user_id")
+        .select("display_name, coins, level, user_id, is_admin")
         .order(sortBy, { ascending: false })
         .limit(50);
       setEntries(data || []);
@@ -91,9 +92,11 @@ export default function LeaderboardScreen({ currentUserId }: LeaderboardScreenPr
                   {i < 3 ? medals[i] : <span className="text-muted-foreground">{i + 1}</span>}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="text-sm font-bold truncate">
+                  <div className={`text-sm font-bold truncate ${entry.is_admin ? "text-destructive" : ""}`}>
                     {entry.display_name}
-                    {isMe && <span className="text-[10px] font-bold text-primary ml-1">(Du)</span>}
+                    {entry.is_admin && <span className="text-[10px] font-bold text-destructive ml-1">(Admin)</span>}
+                    {isMe && !entry.is_admin && <span className="text-[10px] font-bold text-primary ml-1">(Du)</span>}
+                    {isMe && entry.is_admin && <span className="text-[10px] font-bold text-destructive ml-1">(Du)</span>}
                   </div>
                 </div>
                 <div className="flex items-center gap-3 text-xs font-bold shrink-0">
