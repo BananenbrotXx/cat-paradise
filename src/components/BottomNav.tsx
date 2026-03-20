@@ -16,7 +16,8 @@ const BASE_TABS: { id: GameTab; label: string; icon: React.FC<{ className?: stri
   { id: "leaderboard", label: "Rangliste", icon: Trophy },
 ];
 
-export default function BottomNav({ activeTab, onTabChange, questBadge }: BottomNavProps) {
+export default function BottomNav({ activeTab, onTabChange, questBadge, isAdmin }: BottomNavProps) {
+  const TABS = isAdmin ? [...BASE_TABS, { id: "admin" as GameTab, label: "Admin", icon: Shield }] : BASE_TABS;
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-30 bg-card/90 backdrop-blur-md border-t border-border">
       <div className="max-w-lg mx-auto flex">

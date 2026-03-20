@@ -92,9 +92,11 @@ export default function LeaderboardScreen({ currentUserId }: LeaderboardScreenPr
                   {i < 3 ? medals[i] : <span className="text-muted-foreground">{i + 1}</span>}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="text-sm font-bold truncate">
+                  <div className={`text-sm font-bold truncate ${entry.is_admin ? "text-destructive" : ""}`}>
                     {entry.display_name}
-                    {isMe && <span className="text-[10px] font-bold text-primary ml-1">(Du)</span>}
+                    {entry.is_admin && <span className="text-[10px] font-bold text-destructive ml-1">(Admin)</span>}
+                    {isMe && !entry.is_admin && <span className="text-[10px] font-bold text-primary ml-1">(Du)</span>}
+                    {isMe && entry.is_admin && <span className="text-[10px] font-bold text-destructive ml-1">(Du)</span>}
                   </div>
                 </div>
                 <div className="flex items-center gap-3 text-xs font-bold shrink-0">
