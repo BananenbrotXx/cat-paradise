@@ -66,6 +66,7 @@ export default function Index() {
         coins: cat.coins,
         level: cat.level,
         display_name: displayName,
+        is_admin: isAdmin,
       }).eq("user_id", user.id);
     } else {
       await supabase.from("leaderboard").insert({
