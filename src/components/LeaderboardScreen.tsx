@@ -7,6 +7,7 @@ interface LeaderboardEntry {
   coins: number;
   level: number;
   user_id: string;
+  is_admin: boolean;
 }
 
 type SortBy = "coins" | "level";
