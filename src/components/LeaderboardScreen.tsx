@@ -31,9 +31,9 @@ export default function LeaderboardScreen({ currentUserId }: LeaderboardScreenPr
           .select("display_name, coins, level, user_id, is_admin")
           .order(sortBy, { ascending: false })
           .limit(50),
-        supabase.from("banned_users").select("user_id"),
+        supabase.rpc("get_banned_user_ids"),
       ]);
-      const bannedIds = new Set((bannedData || []).map((b) => b.user_id));
+      const bannedIds = new Set((bannedData || []) as string[]);
       const enriched = (leaderboardData || []).map((e) => ({
         ...e,
         is_banned: bannedIds.has(e.user_id),
