@@ -8,6 +8,7 @@ interface LeaderboardEntry {
   level: number;
   user_id: string;
   is_admin: boolean;
+  is_banned: boolean;
 }
 
 type SortBy = "coins" | "level";
@@ -24,12 +25,20 @@ export default function LeaderboardScreen({ currentUserId }: LeaderboardScreenPr
   useEffect(() => {
     const fetchLeaderboard = async () => {
       setLoading(true);
-      const { data } = await supabase
-        .from("leaderboard")
-        .select("display_name, coins, level, user_id, is_admin")
-        .order(sortBy, { ascending: false })
-        .limit(50);
-      setEntries(data || []);
+      const [{ data: leaderboardData }, { data: bannedData }] = await Promise.all([
+        supabase
+          .from("leaderboard")
+          .select("display_name, coins, level, user_id, is_admin")
+          .order(sortBy, { ascending: false })
+          .limit(50),
+        supabase.rpc("get_banned_user_ids"),
+      ]);
+      const bannedIds = new Set((bannedData || []) as string[]);
+      const enriched = (leaderboardData || []).map((e) => ({
+        ...e,
+        is_banned: bannedIds.has(e.user_id),
+      }));
+      setEntries(enriched);
       setLoading(false);
     };
     fetchLeaderboard();
@@ -85,18 +94,19 @@ export default function LeaderboardScreen({ currentUserId }: LeaderboardScreenPr
             return (
               <div
                 key={entry.user_id}
-                className={`game-card p-3.5 flex items-center gap-3 section-reveal ${isMe ? "ring-2 ring-primary/30" : ""}`}
+                className={`game-card p-3.5 flex items-center gap-3 section-reveal ${isMe ? "ring-2 ring-primary/30" : ""} ${entry.is_banned ? "opacity-60" : ""}`}
                 style={{ animationDelay: `${i * 50}ms` }}
               >
                 <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-sm font-extrabold shrink-0">
                   {i < 3 ? medals[i] : <span className="text-muted-foreground">{i + 1}</span>}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className={`text-sm font-bold truncate ${entry.is_admin ? "text-destructive" : ""}`}>
+                  <div className={`text-sm font-bold truncate ${entry.is_banned ? "text-muted-foreground line-through" : entry.is_admin ? "text-destructive" : ""}`}>
                     {entry.display_name}
-                    {entry.is_admin && <span className="text-[10px] font-bold text-destructive ml-1">(Admin)</span>}
-                    {isMe && !entry.is_admin && <span className="text-[10px] font-bold text-primary ml-1">(Du)</span>}
-                    {isMe && entry.is_admin && <span className="text-[10px] font-bold text-destructive ml-1">(Du)</span>}
+                    {entry.is_banned && <span className="ml-1 no-underline inline-block">🚫</span>}
+                    {entry.is_admin && !entry.is_banned && <span className="text-[10px] font-bold text-destructive ml-1">(Admin)</span>}
+                    {isMe && !entry.is_admin && !entry.is_banned && <span className="text-[10px] font-bold text-primary ml-1">(Du)</span>}
+                    {isMe && entry.is_admin && !entry.is_banned && <span className="text-[10px] font-bold text-destructive ml-1">(Du)</span>}
                   </div>
                 </div>
                 <div className="flex items-center gap-3 text-xs font-bold shrink-0">

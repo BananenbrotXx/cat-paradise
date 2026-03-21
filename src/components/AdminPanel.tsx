@@ -1,9 +1,15 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Shield, Search, Ban, Zap, UserX, Undo2 } from "lucide-react";
+import { Shield, Search, Ban, Zap, Undo2, Users } from "lucide-react";
 
 interface AdminPanelProps {
   onSkipCooldowns: () => void;
+}
+
+interface BannedEntry {
+  user_id: string;
+  display_name: string;
+  banned_at: string;
 }
 
 export default function AdminPanel({ onSkipCooldowns }: AdminPanelProps) {
@@ -13,6 +19,8 @@ export default function AdminPanel({ onSkipCooldowns }: AdminPanelProps) {
   const [lookupResult, setLookupResult] = useState<{ email: string; display_name: string } | null>(null);
   const [message, setMessage] = useState<{ text: string; type: "success" | "error" } | null>(null);
   const [loading, setLoading] = useState(false);
+  const [bannedList, setBannedList] = useState<BannedEntry[]>([]);
+  const [bannedLoading, setBannedLoading] = useState(true);
 
   const showMsg = (text: string, type: "success" | "error") => {
     setMessage({ text, type });
@@ -27,6 +35,19 @@ export default function AdminPanel({ onSkipCooldowns }: AdminPanelProps) {
     });
     return res;
   };
+
+  const fetchBannedList = async () => {
+    setBannedLoading(true);
+    const res = await callAdmin("list_banned", {});
+    if (res?.data && Array.isArray(res.data)) {
+      setBannedList(res.data);
+    }
+    setBannedLoading(false);
+  };
+
+  useEffect(() => {
+    fetchBannedList();
+  }, []);
 
   const handleLookup = async () => {
     if (!searchName.trim()) return;
@@ -51,6 +72,7 @@ export default function AdminPanel({ onSkipCooldowns }: AdminPanelProps) {
     } else {
       showMsg(`${banName} wurde gebannt!`, "success");
       setBanName("");
+      fetchBannedList();
     }
   };
 
@@ -64,6 +86,7 @@ export default function AdminPanel({ onSkipCooldowns }: AdminPanelProps) {
     } else {
       showMsg(`${unbanName} wurde entbannt!`, "success");
       setUnbanName("");
+      fetchBannedList();
     }
   };
 
@@ -146,6 +169,37 @@ export default function AdminPanel({ onSkipCooldowns }: AdminPanelProps) {
             Entbannen
           </button>
         </div>
+      </div>
+
+      {/* Banned Users List */}
+      <div className="game-card p-4 space-y-3">
+        <h3 className="text-sm font-bold flex items-center gap-2"><Users className="w-4 h-4 text-destructive" /> Gebannte Spieler ({bannedList.length})</h3>
+        {bannedLoading ? (
+          <div className="space-y-2">
+            {[1, 2].map((i) => <div key={i} className="h-10 rounded-lg bg-muted/50 animate-pulse" />)}
+          </div>
+        ) : bannedList.length === 0 ? (
+          <p className="text-xs text-muted-foreground">Keine gebannten Spieler.</p>
+        ) : (
+          <div className="space-y-2">
+            {bannedList.map((b) => (
+              <div key={b.user_id} className="flex items-center justify-between p-2.5 rounded-lg bg-muted/50">
+                <div>
+                  <p className="text-sm font-bold text-muted-foreground line-through">{b.display_name} 🚫</p>
+                  <p className="text-[10px] text-muted-foreground">
+                    Gebannt am {new Date(b.banned_at).toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" })}
+                  </p>
+                </div>
+                <button
+                  onClick={() => { setUnbanName(b.display_name); }}
+                  className="text-[10px] font-bold text-green-600 hover:underline"
+                >
+                  Entbannen
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
