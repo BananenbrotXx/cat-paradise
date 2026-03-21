@@ -118,6 +118,8 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      cleanup_banned_leaderboard: { Args: never; Returns: undefined }
+      get_banned_user_ids: { Args: never; Returns: string[] }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
