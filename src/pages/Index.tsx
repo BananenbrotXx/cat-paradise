@@ -196,6 +196,10 @@ export default function Index() {
           <LeaderboardScreen currentUserId={user.id} />
         )}
 
+        {activeTab === "minigames" && (
+          <MiniGameScreen onReward={(coins) => addCoins(coins)} />
+        )}
+
         {activeTab === "admin" && isAdmin && (
           <AdminPanel onSkipCooldowns={skipAllCooldowns} />
         )}
