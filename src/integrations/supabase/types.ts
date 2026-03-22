@@ -38,6 +38,30 @@ export type Database = {
         }
         Relationships: []
       }
+      daily_streaks: {
+        Row: {
+          created_at: string
+          current_streak: number
+          id: string
+          last_claim_date: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          current_streak?: number
+          id?: string
+          last_claim_date?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          current_streak?: number
+          id?: string
+          last_claim_date?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       game_saves: {
         Row: {
           coins: number
@@ -45,6 +69,7 @@ export type Database = {
           happiness: number
           hunger: number
           id: string
+          last_online: string
           level: number
           total_interactions: number
           updated_at: string
@@ -58,6 +83,7 @@ export type Database = {
           happiness?: number
           hunger?: number
           id?: string
+          last_online?: string
           level?: number
           total_interactions?: number
           updated_at?: string
@@ -71,6 +97,7 @@ export type Database = {
           happiness?: number
           hunger?: number
           id?: string
+          last_online?: string
           level?: number
           total_interactions?: number
           updated_at?: string

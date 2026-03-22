@@ -6,6 +6,9 @@ import CatDisplay from "@/components/CatDisplay";
 import StatBars from "@/components/StatBars";
 import ActionButtons from "@/components/ActionButtons";
 import Shop from "@/components/Shop";
+import MiniGameScreen from "@/components/MiniGameScreen";
+import DailyStreakPopup from "@/components/DailyStreakPopup";
+import OfflineEarningsPopup from "@/components/OfflineEarningsPopup";
 import VillageScreen from "@/components/VillageScreen";
 import QuestScreen from "@/components/QuestScreen";
 import LeaderboardScreen from "@/components/LeaderboardScreen";
@@ -26,6 +29,7 @@ export default function Index() {
     isAnimating, floatingCoins, floatingHearts,
     notification, completedQuests, totalQuests,
     actionCooldowns, skipAllCooldowns,
+    addCoins, offlineEarnings, collectOfflineEarnings,
   } = useCatGame(user?.id);
 
   // Auth state listener
@@ -122,6 +126,18 @@ export default function Index() {
     <div className="min-h-screen pb-20">
       <NotificationToast message={notification} />
 
+      {/* Daily Streak */}
+      <DailyStreakPopup userId={user.id} onReward={(coins) => addCoins(coins)} />
+
+      {/* Offline Earnings */}
+      {offlineEarnings && (
+        <OfflineEarningsPopup
+          coins={offlineEarnings.coins}
+          minutesAway={offlineEarnings.minutes}
+          onCollect={collectOfflineEarnings}
+        />
+      )}
+
       {/* Header */}
       <header className="sticky top-0 z-20 bg-background/80 backdrop-blur-md border-b border-border/60">
         <div className="max-w-lg mx-auto px-4 py-2.5 flex items-center justify-between">
@@ -178,6 +194,10 @@ export default function Index() {
 
         {activeTab === "leaderboard" && (
           <LeaderboardScreen currentUserId={user.id} />
+        )}
+
+        {activeTab === "minigames" && (
+          <MiniGameScreen onReward={(coins) => addCoins(coins)} />
         )}
 
         {activeTab === "admin" && isAdmin && (

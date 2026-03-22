@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
 export type CatMood = "happy" | "content" | "tired" | "hungry" | "sad";
-export type GameTab = "cat" | "village" | "shop" | "quests" | "leaderboard" | "admin";
+export type GameTab = "cat" | "village" | "shop" | "quests" | "leaderboard" | "admin" | "minigames";
 
 export interface ShopItem {
   id: string;
@@ -160,6 +160,7 @@ export function useCatGame(userId?: string | null) {
   const [, setTick] = useState(0);
   const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const loadedRef = useRef(false);
+  const [offlineEarnings, setOfflineEarnings] = useState<{ coins: number; minutes: number } | null>(null);
 
   // Load saved game state from database
   useEffect(() => {
@@ -172,6 +173,22 @@ export function useCatGame(userId?: string | null) {
         .eq("user_id", userId)
         .maybeSingle();
       if (data) {
+        // Calculate offline earnings
+        const lastOnline = (data as any).last_online ? new Date((data as any).last_online) : null;
+        const now = new Date();
+        if (lastOnline) {
+          const diffMs = now.getTime() - lastOnline.getTime();
+          const diffMin = diffMs / 60000;
+          if (diffMin >= 2) { // At least 2 min away
+            const baseRate = 0.5 + (data.level * 0.3); // coins per minute
+            const happinessBonus = data.happiness / 100;
+            const earned = Math.min(500, Math.round(diffMin * baseRate * (0.5 + happinessBonus)));
+            if (earned > 0) {
+              setOfflineEarnings({ coins: earned, minutes: diffMin });
+            }
+          }
+        }
+
         setCat((prev) => {
           const restored = {
             ...prev,
@@ -210,6 +227,7 @@ export function useCatGame(userId?: string | null) {
         xp_to_next: state.xpToNext,
         total_interactions: state.totalInteractions,
         updated_at: new Date().toISOString(),
+        last_online: new Date().toISOString(),
       };
       const { data: existing } = await supabase
         .from("game_saves")
@@ -411,11 +429,23 @@ export function useCatGame(userId?: string | null) {
     showNotification("⚡ Alle Cooldowns zurückgesetzt!");
   }, [showNotification]);
 
+  const addCoins = useCallback((amount: number) => {
+    setCat((prev) => ({ ...prev, coins: prev.coins + amount }));
+  }, []);
+
+  const collectOfflineEarnings = useCallback(() => {
+    if (offlineEarnings) {
+      addCoins(offlineEarnings.coins);
+      setOfflineEarnings(null);
+    }
+  }, [offlineEarnings, addCoins]);
+
   return {
     cat, quests, village, activeTab, setActiveTab,
     pet, play, rest, buyItem, visitLocation, claimQuest,
     isAnimating, floatingCoins, floatingHearts,
     notification, completedQuests, totalQuests: quests.length,
     actionCooldowns, skipAllCooldowns,
+    addCoins, offlineEarnings, collectOfflineEarnings,
   };
 }
