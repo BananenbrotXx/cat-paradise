@@ -50,7 +50,7 @@ export default function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
       <div className="game-card p-6 w-full max-w-sm space-y-5 tab-content-enter">
         <div className="text-center">
           <div className="text-4xl mb-2">🐱</div>
-          <h1 className="text-xl font-extrabold">Mochi's Welt</h1>
+          <h1 className="text-xl font-extrabold">Cat Paradise</h1>
           <p className="text-xs text-muted-foreground mt-1">
             {mode === "login" ? "Willkommen zurück!" : "Erstelle dein Konto"}
           </p>

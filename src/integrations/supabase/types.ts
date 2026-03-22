@@ -38,6 +38,48 @@ export type Database = {
         }
         Relationships: []
       }
+      game_saves: {
+        Row: {
+          coins: number
+          energy: number
+          happiness: number
+          hunger: number
+          id: string
+          level: number
+          total_interactions: number
+          updated_at: string
+          user_id: string
+          xp: number
+          xp_to_next: number
+        }
+        Insert: {
+          coins?: number
+          energy?: number
+          happiness?: number
+          hunger?: number
+          id?: string
+          level?: number
+          total_interactions?: number
+          updated_at?: string
+          user_id: string
+          xp?: number
+          xp_to_next?: number
+        }
+        Update: {
+          coins?: number
+          energy?: number
+          happiness?: number
+          hunger?: number
+          id?: string
+          level?: number
+          total_interactions?: number
+          updated_at?: string
+          user_id?: string
+          xp?: number
+          xp_to_next?: number
+        }
+        Relationships: []
+      }
       leaderboard: {
         Row: {
           coins: number
