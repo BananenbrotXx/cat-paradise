@@ -12,8 +12,9 @@ const BASE_TABS: { id: GameTab; label: string; icon: React.FC<{ className?: stri
   { id: "cat", label: "Mochi", icon: Cat },
   { id: "village", label: "Dorf", icon: MapPin },
   { id: "shop", label: "Shop", icon: ShoppingBag },
+  { id: "minigames", label: "Spiele", icon: Gamepad2 },
   { id: "quests", label: "Quests", icon: Scroll },
-  { id: "leaderboard", label: "Rangliste", icon: Trophy },
+  { id: "leaderboard", label: "Rang", icon: Trophy },
 ];
 
 export default function BottomNav({ activeTab, onTabChange, questBadge, isAdmin }: BottomNavProps) {
