@@ -227,6 +227,7 @@ export function useCatGame(userId?: string | null) {
         xp_to_next: state.xpToNext,
         total_interactions: state.totalInteractions,
         updated_at: new Date().toISOString(),
+        last_online: new Date().toISOString(),
       };
       const { data: existing } = await supabase
         .from("game_saves")
