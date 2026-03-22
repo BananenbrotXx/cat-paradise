@@ -160,6 +160,7 @@ export function useCatGame(userId?: string | null) {
   const [, setTick] = useState(0);
   const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const loadedRef = useRef(false);
+  const [offlineEarnings, setOfflineEarnings] = useState<{ coins: number; minutes: number } | null>(null);
 
   // Load saved game state from database
   useEffect(() => {
