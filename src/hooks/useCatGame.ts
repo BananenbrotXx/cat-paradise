@@ -173,6 +173,22 @@ export function useCatGame(userId?: string | null) {
         .eq("user_id", userId)
         .maybeSingle();
       if (data) {
+        // Calculate offline earnings
+        const lastOnline = (data as any).last_online ? new Date((data as any).last_online) : null;
+        const now = new Date();
+        if (lastOnline) {
+          const diffMs = now.getTime() - lastOnline.getTime();
+          const diffMin = diffMs / 60000;
+          if (diffMin >= 2) { // At least 2 min away
+            const baseRate = 0.5 + (data.level * 0.3); // coins per minute
+            const happinessBonus = data.happiness / 100;
+            const earned = Math.min(500, Math.round(diffMin * baseRate * (0.5 + happinessBonus)));
+            if (earned > 0) {
+              setOfflineEarnings({ coins: earned, minutes: diffMin });
+            }
+          }
+        }
+
         setCat((prev) => {
           const restored = {
             ...prev,
