@@ -26,7 +26,7 @@ export default function Index() {
     isAnimating, floatingCoins, floatingHearts,
     notification, completedQuests, totalQuests,
     actionCooldowns, skipAllCooldowns,
-  } = useCatGame();
+  } = useCatGame(user?.id);
 
   // Auth state listener
   useEffect(() => {
