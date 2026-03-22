@@ -146,7 +146,7 @@ const INITIAL_STATE: CatState = {
   xpToNext: 50,
 };
 
-export function useCatGame() {
+export function useCatGame(userId?: string | null) {
   const [cat, setCat] = useState<CatState>(INITIAL_STATE);
   const [quests, setQuests] = useState<Quest[]>(INITIAL_QUESTS);
   const [village, setVillage] = useState<VillageLocation[]>(VILLAGE_LOCATIONS);
@@ -158,6 +158,76 @@ export function useCatGame() {
   const [actionCooldowns, setActionCooldowns] = useState<ActionCooldowns>({ pet: null, play: null, rest: null });
   const coinIdRef = useRef(0);
   const [, setTick] = useState(0);
+  const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const loadedRef = useRef(false);
+
+  // Load saved game state from database
+  useEffect(() => {
+    if (!userId) return;
+    loadedRef.current = false;
+    const load = async () => {
+      const { data } = await supabase
+        .from("game_saves")
+        .select("*")
+        .eq("user_id", userId)
+        .maybeSingle();
+      if (data) {
+        setCat((prev) => {
+          const restored = {
+            ...prev,
+            hunger: data.hunger,
+            happiness: data.happiness,
+            energy: data.energy,
+            coins: data.coins,
+            level: data.level,
+            xp: data.xp,
+            xpToNext: data.xp_to_next,
+            totalInteractions: data.total_interactions,
+          };
+          restored.mood = calculateMood(restored);
+          restored.multiplier = calculateMultiplier(restored);
+          return restored;
+        });
+      }
+      loadedRef.current = true;
+    };
+    load();
+  }, [userId]);
+
+  // Auto-save game state (debounced)
+  const saveGame = useCallback((state: CatState) => {
+    if (!userId || !loadedRef.current) return;
+    if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
+    saveTimeoutRef.current = setTimeout(async () => {
+      const payload = {
+        user_id: userId,
+        hunger: state.hunger,
+        happiness: state.happiness,
+        energy: state.energy,
+        coins: state.coins,
+        level: state.level,
+        xp: state.xp,
+        xp_to_next: state.xpToNext,
+        total_interactions: state.totalInteractions,
+        updated_at: new Date().toISOString(),
+      };
+      const { data: existing } = await supabase
+        .from("game_saves")
+        .select("id")
+        .eq("user_id", userId)
+        .maybeSingle();
+      if (existing) {
+        await supabase.from("game_saves").update(payload).eq("user_id", userId);
+      } else {
+        await supabase.from("game_saves").insert(payload);
+      }
+    }, 3000);
+  }, [userId]);
+
+  // Trigger save whenever cat state changes
+  useEffect(() => {
+    if (loadedRef.current) saveGame(cat);
+  }, [cat, saveGame]);
 
   // Force re-render for cooldown timers
   useEffect(() => {
