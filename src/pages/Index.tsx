@@ -29,6 +29,7 @@ export default function Index() {
     isAnimating, floatingCoins, floatingHearts,
     notification, completedQuests, totalQuests,
     actionCooldowns, skipAllCooldowns,
+    addCoins, offlineEarnings, collectOfflineEarnings,
   } = useCatGame(user?.id);
 
   // Auth state listener
