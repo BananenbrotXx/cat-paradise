@@ -429,11 +429,23 @@ export function useCatGame(userId?: string | null) {
     showNotification("⚡ Alle Cooldowns zurückgesetzt!");
   }, [showNotification]);
 
+  const addCoins = useCallback((amount: number) => {
+    setCat((prev) => ({ ...prev, coins: prev.coins + amount }));
+  }, []);
+
+  const collectOfflineEarnings = useCallback(() => {
+    if (offlineEarnings) {
+      addCoins(offlineEarnings.coins);
+      setOfflineEarnings(null);
+    }
+  }, [offlineEarnings, addCoins]);
+
   return {
     cat, quests, village, activeTab, setActiveTab,
     pet, play, rest, buyItem, visitLocation, claimQuest,
     isAnimating, floatingCoins, floatingHearts,
     notification, completedQuests, totalQuests: quests.length,
     actionCooldowns, skipAllCooldowns,
+    addCoins, offlineEarnings, collectOfflineEarnings,
   };
 }
