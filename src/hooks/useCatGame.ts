@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect, useRef } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 export type CatMood = "happy" | "content" | "tired" | "hungry" | "sad";
 export type GameTab = "cat" | "village" | "shop" | "quests" | "leaderboard" | "admin";
