@@ -126,6 +126,18 @@ export default function Index() {
     <div className="min-h-screen pb-20">
       <NotificationToast message={notification} />
 
+      {/* Daily Streak */}
+      <DailyStreakPopup userId={user.id} onReward={(coins) => addCoins(coins)} />
+
+      {/* Offline Earnings */}
+      {offlineEarnings && (
+        <OfflineEarningsPopup
+          coins={offlineEarnings.coins}
+          minutesAway={offlineEarnings.minutes}
+          onCollect={collectOfflineEarnings}
+        />
+      )}
+
       {/* Header */}
       <header className="sticky top-0 z-20 bg-background/80 backdrop-blur-md border-b border-border/60">
         <div className="max-w-lg mx-auto px-4 py-2.5 flex items-center justify-between">
