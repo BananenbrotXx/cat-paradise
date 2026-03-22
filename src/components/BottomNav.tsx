@@ -1,5 +1,5 @@
 import type { GameTab } from "@/hooks/useCatGame";
-import { Cat, MapPin, ShoppingBag, Scroll, Trophy, Shield } from "lucide-react";
+import { Cat, MapPin, ShoppingBag, Scroll, Trophy, Shield, Gamepad2 } from "lucide-react";
 
 interface BottomNavProps {
   activeTab: GameTab;
