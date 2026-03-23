@@ -87,7 +87,7 @@ export default function CatDisplay({ mood, isAnimating, lastInteraction, floatin
         <img
           src={showImage}
           alt="Deine Katze"
-          className={`relative w-52 h-52 object-contain drop-shadow-lg transition-transform duration-300 ${
+          className={`relative w-52 h-52 object-contain drop-shadow-lg transition-transform duration-300 ${skinClass} ${
             isAnimating ? "animate-wiggle" : "animate-float"
           }`}
         />
