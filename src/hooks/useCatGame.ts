@@ -55,6 +55,7 @@ export interface CatState {
   level: number;
   xp: number;
   xpToNext: number;
+  activeSkin: string;
 }
 
 export interface ActionCooldowns {
