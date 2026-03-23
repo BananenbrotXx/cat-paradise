@@ -178,13 +178,18 @@ export function useCatGame(userId?: string | null) {
     loadedRef.current = false;
     setGameLoaded(false);
     const load = async () => {
-      const { data } = await supabase
-        .from("game_saves")
-        .select("*")
-        .eq("user_id", userId)
-        .maybeSingle();
+      // Load game save and skins in parallel
+      const [saveResult, skinsResult] = await Promise.all([
+        supabase.from("game_saves").select("*").eq("user_id", userId).maybeSingle(),
+        supabase.from("cat_skins" as any).select("skin_id").eq("user_id", userId),
+      ]);
+
+      const data = saveResult.data;
+      const skinsData = (skinsResult.data as any[]) || [];
+      const owned = ["default", ...skinsData.map((s: any) => s.skin_id)];
+      setOwnedSkins(owned);
+
       if (data) {
-        // Calculate offline earnings
         const lastOnline = (data as any).last_online ? new Date((data as any).last_online) : null;
         const now = new Date();
         if (lastOnline) {
@@ -200,6 +205,9 @@ export function useCatGame(userId?: string | null) {
           }
         }
 
+        const activeSkin = (data as any).active_skin || "default";
+        const skinBonus = CAT_SKINS.find(s => s.id === activeSkin)?.multiplierBonus || 0;
+
         setCat((prev) => {
           const restored = {
             ...prev,
@@ -211,9 +219,10 @@ export function useCatGame(userId?: string | null) {
             xp: data.xp,
             xpToNext: data.xp_to_next,
             totalInteractions: data.total_interactions,
+            activeSkin,
           };
           restored.mood = calculateMood(restored);
-          restored.multiplier = calculateMultiplier(restored);
+          restored.multiplier = calculateMultiplier(restored, skinBonus);
           return restored;
         });
       }
