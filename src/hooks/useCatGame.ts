@@ -109,12 +109,13 @@ function calculateMood(state: Pick<CatState, "hunger" | "happiness" | "energy">)
   return "sad";
 }
 
-function calculateMultiplier(state: Pick<CatState, "hunger" | "happiness" | "energy">): number {
+function calculateMultiplier(state: Pick<CatState, "hunger" | "happiness" | "energy">, skinBonus = 0): number {
   const avg = (state.hunger + state.happiness + state.energy) / 3;
-  if (avg >= 80) return 3.0;
-  if (avg >= 60) return 2.0;
-  if (avg >= 40) return 1.5;
-  return 1.0;
+  let base = 1.0;
+  if (avg >= 80) base = 3.0;
+  else if (avg >= 60) base = 2.0;
+  else if (avg >= 40) base = 1.5;
+  return base + skinBonus;
 }
 
 function xpForLevel(level: number) {
