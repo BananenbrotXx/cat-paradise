@@ -38,6 +38,27 @@ export type Database = {
         }
         Relationships: []
       }
+      cat_skins: {
+        Row: {
+          id: string
+          purchased_at: string
+          skin_id: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          purchased_at?: string
+          skin_id: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          purchased_at?: string
+          skin_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       daily_streaks: {
         Row: {
           created_at: string
@@ -64,6 +85,7 @@ export type Database = {
       }
       game_saves: {
         Row: {
+          active_skin: string
           coins: number
           energy: number
           happiness: number
@@ -78,6 +100,7 @@ export type Database = {
           xp_to_next: number
         }
         Insert: {
+          active_skin?: string
           coins?: number
           energy?: number
           happiness?: number
@@ -92,6 +115,7 @@ export type Database = {
           xp_to_next?: number
         }
         Update: {
+          active_skin?: string
           coins?: number
           energy?: number
           happiness?: number

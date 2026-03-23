@@ -6,9 +6,11 @@ import CatDisplay from "@/components/CatDisplay";
 import StatBars from "@/components/StatBars";
 import ActionButtons from "@/components/ActionButtons";
 import Shop from "@/components/Shop";
+import SkinShop from "@/components/SkinShop";
 import MiniGameScreen from "@/components/MiniGameScreen";
 import DailyStreakPopup from "@/components/DailyStreakPopup";
 import OfflineEarningsPopup from "@/components/OfflineEarningsPopup";
+import RandomEventPopup from "@/components/RandomEventPopup";
 import VillageScreen from "@/components/VillageScreen";
 import QuestScreen from "@/components/QuestScreen";
 import LeaderboardScreen from "@/components/LeaderboardScreen";
@@ -22,6 +24,7 @@ export default function Index() {
   const [user, setUser] = useState<User | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [shopTab, setShopTab] = useState<"items" | "skins">("items");
 
   const {
     cat, quests, village, activeTab, setActiveTab,
@@ -30,7 +33,7 @@ export default function Index() {
     notification, completedQuests, totalQuests,
     actionCooldowns, skipAllCooldowns,
     addCoins, offlineEarnings, collectOfflineEarnings,
-    gameLoaded,
+    gameLoaded, ownedSkins, buySkin, equipSkin, applyRandomEvent,
   } = useCatGame(user?.id);
 
   // Auth state listener
@@ -139,6 +142,9 @@ export default function Index() {
         />
       )}
 
+      {/* Random Events */}
+      <RandomEventPopup onApplyEvent={applyRandomEvent} gameLoaded={gameLoaded} />
+
       {/* Header */}
       <header className="sticky top-0 z-20 bg-background/80 backdrop-blur-md border-b border-border/60">
         <div className="max-w-lg mx-auto px-4 py-2.5 flex items-center justify-between">
@@ -150,7 +156,7 @@ export default function Index() {
           </div>
           <div className="flex items-center gap-2">
             <div className="flex items-center gap-1.5 font-extrabold bg-accent/50 px-3 py-1 rounded-full text-xs text-coin-foreground">
-              🪙 <span className="tabular-nums">{cat.coins}</span>
+              🪙 <span className="tabular-nums">{cat.coins.toLocaleString()}</span>
             </div>
             <button onClick={handleLogout} className="p-1.5 rounded-lg hover:bg-muted transition-colors bounce-click" title="Abmelden">
               <LogOut className="w-4 h-4 text-muted-foreground" />
@@ -172,11 +178,12 @@ export default function Index() {
               level={cat.level}
               xp={cat.xp}
               xpToNext={cat.xpToNext}
+              activeSkin={cat.activeSkin}
             />
             <StatBars hunger={cat.hunger} happiness={cat.happiness} energy={cat.energy} multiplier={cat.multiplier} />
             <ActionButtons onPet={pet} onPlay={play} onRest={rest} energy={cat.energy} actionCooldowns={actionCooldowns} />
             <div className="game-card p-3 text-center text-xs text-muted-foreground section-reveal section-reveal-delay-3">
-              Halte alle Stats hoch für bis zu <strong className="text-secondary">×3.0</strong> Münz-Bonus!
+              Halte alle Stats hoch für bis zu <strong className="text-secondary">×{cat.multiplier.toFixed(1)}</strong> Münz-Bonus!
             </div>
           </div>
         )}
@@ -186,7 +193,40 @@ export default function Index() {
         )}
 
         {activeTab === "shop" && (
-          <Shop coins={cat.coins} onBuy={buyItem} />
+          <div className="space-y-4 tab-content-enter" key="shop-tab">
+            {/* Shop sub-tabs */}
+            <div className="flex gap-1.5 bg-muted/50 p-1 rounded-xl">
+              <button
+                onClick={() => setShopTab("items")}
+                className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all bounce-click ${
+                  shopTab === "items" ? "bg-card shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                🛒 Items
+              </button>
+              <button
+                onClick={() => setShopTab("skins")}
+                className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all bounce-click ${
+                  shopTab === "skins" ? "bg-card shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                🎨 Skins
+              </button>
+            </div>
+
+            {shopTab === "items" ? (
+              <Shop coins={cat.coins} onBuy={buyItem} />
+            ) : (
+              <SkinShop
+                coins={cat.coins}
+                userId={user.id}
+                activeSkin={cat.activeSkin}
+                onBuySkin={buySkin}
+                onEquipSkin={equipSkin}
+                ownedSkins={ownedSkins}
+              />
+            )}
+          </div>
         )}
 
         {activeTab === "quests" && (

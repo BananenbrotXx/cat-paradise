@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { CAT_SKINS, type CatSkin } from "@/components/SkinShop";
 
 export type CatMood = "happy" | "content" | "tired" | "hungry" | "sad";
 export type GameTab = "cat" | "village" | "shop" | "quests" | "leaderboard" | "admin" | "minigames";
@@ -54,6 +55,7 @@ export interface CatState {
   level: number;
   xp: number;
   xpToNext: number;
+  activeSkin: string;
 }
 
 export interface ActionCooldowns {
@@ -107,12 +109,13 @@ function calculateMood(state: Pick<CatState, "hunger" | "happiness" | "energy">)
   return "sad";
 }
 
-function calculateMultiplier(state: Pick<CatState, "hunger" | "happiness" | "energy">): number {
+function calculateMultiplier(state: Pick<CatState, "hunger" | "happiness" | "energy">, skinBonus = 0): number {
   const avg = (state.hunger + state.happiness + state.energy) / 3;
-  if (avg >= 80) return 3.0;
-  if (avg >= 60) return 2.0;
-  if (avg >= 40) return 1.5;
-  return 1.0;
+  let base = 1.0;
+  if (avg >= 80) base = 3.0;
+  else if (avg >= 60) base = 2.0;
+  else if (avg >= 40) base = 1.5;
+  return base + skinBonus;
 }
 
 function xpForLevel(level: number) {
@@ -144,6 +147,7 @@ const INITIAL_STATE: CatState = {
   level: 1,
   xp: 0,
   xpToNext: 50,
+  activeSkin: "default",
 };
 
 export function useCatGame(userId?: string | null) {
@@ -162,6 +166,7 @@ export function useCatGame(userId?: string | null) {
   const loadedRef = useRef(false);
   const [gameLoaded, setGameLoaded] = useState(false);
   const [offlineEarnings, setOfflineEarnings] = useState<{ coins: number; minutes: number } | null>(null);
+  const [ownedSkins, setOwnedSkins] = useState<string[]>(["default"]);
 
   // Load saved game state from database
   useEffect(() => {
@@ -173,13 +178,18 @@ export function useCatGame(userId?: string | null) {
     loadedRef.current = false;
     setGameLoaded(false);
     const load = async () => {
-      const { data } = await supabase
-        .from("game_saves")
-        .select("*")
-        .eq("user_id", userId)
-        .maybeSingle();
+      // Load game save and skins in parallel
+      const [saveResult, skinsResult] = await Promise.all([
+        supabase.from("game_saves").select("*").eq("user_id", userId).maybeSingle(),
+        supabase.from("cat_skins" as any).select("skin_id").eq("user_id", userId),
+      ]);
+
+      const data = saveResult.data;
+      const skinsData = (skinsResult.data as any[]) || [];
+      const owned = ["default", ...skinsData.map((s: any) => s.skin_id)];
+      setOwnedSkins(owned);
+
       if (data) {
-        // Calculate offline earnings
         const lastOnline = (data as any).last_online ? new Date((data as any).last_online) : null;
         const now = new Date();
         if (lastOnline) {
@@ -195,6 +205,9 @@ export function useCatGame(userId?: string | null) {
           }
         }
 
+        const activeSkin = (data as any).active_skin || "default";
+        const skinBonus = CAT_SKINS.find(s => s.id === activeSkin)?.multiplierBonus || 0;
+
         setCat((prev) => {
           const restored = {
             ...prev,
@@ -206,9 +219,10 @@ export function useCatGame(userId?: string | null) {
             xp: data.xp,
             xpToNext: data.xp_to_next,
             totalInteractions: data.total_interactions,
+            activeSkin,
           };
           restored.mood = calculateMood(restored);
-          restored.multiplier = calculateMultiplier(restored);
+          restored.multiplier = calculateMultiplier(restored, skinBonus);
           return restored;
         });
       }
@@ -235,6 +249,7 @@ export function useCatGame(userId?: string | null) {
         total_interactions: state.totalInteractions,
         updated_at: new Date().toISOString(),
         last_online: new Date().toISOString(),
+        active_skin: state.activeSkin,
       };
       const { data: existing } = await supabase
         .from("game_saves")
@@ -448,6 +463,48 @@ export function useCatGame(userId?: string | null) {
     }
   }, [offlineEarnings, addCoins]);
 
+  const buySkin = useCallback((skin: CatSkin) => {
+    if (cat.coins < skin.price || ownedSkins.includes(skin.id)) return;
+    setCat((prev) => ({
+      ...prev,
+      coins: prev.coins - skin.price,
+      activeSkin: skin.id,
+      multiplier: calculateMultiplier(prev, skin.multiplierBonus),
+    }));
+    setOwnedSkins((prev) => [...prev, skin.id]);
+    if (userId) {
+      supabase.from("cat_skins" as any).insert({ user_id: userId, skin_id: skin.id });
+    }
+    showNotification(`🎨 Skin "${skin.name}" freigeschaltet!`);
+  }, [cat.coins, ownedSkins, userId, showNotification]);
+
+  const equipSkin = useCallback((skinId: string) => {
+    if (!ownedSkins.includes(skinId)) return;
+    const skinBonus = CAT_SKINS.find(s => s.id === skinId)?.multiplierBonus || 0;
+    setCat((prev) => ({
+      ...prev,
+      activeSkin: skinId,
+      multiplier: calculateMultiplier(prev, skinBonus),
+    }));
+    showNotification(`🐱 Skin gewechselt!`);
+  }, [ownedSkins, showNotification]);
+
+  const applyRandomEvent = useCallback((effect: { coins?: number; hunger?: number; happiness?: number; energy?: number }) => {
+    setCat((prev) => {
+      const next = {
+        ...prev,
+        coins: Math.max(0, prev.coins + (effect.coins || 0)),
+        hunger: Math.min(100, Math.max(0, prev.hunger + (effect.hunger || 0))),
+        happiness: Math.min(100, Math.max(0, prev.happiness + (effect.happiness || 0))),
+        energy: Math.min(100, Math.max(0, prev.energy + (effect.energy || 0))),
+      };
+      next.mood = calculateMood(next);
+      const skinBonus = CAT_SKINS.find(s => s.id === next.activeSkin)?.multiplierBonus || 0;
+      next.multiplier = calculateMultiplier(next, skinBonus);
+      return next;
+    });
+  }, []);
+
   return {
     cat, quests, village, activeTab, setActiveTab,
     pet, play, rest, buyItem, visitLocation, claimQuest,
@@ -455,6 +512,6 @@ export function useCatGame(userId?: string | null) {
     notification, completedQuests, totalQuests: quests.length,
     actionCooldowns, skipAllCooldowns,
     addCoins, offlineEarnings, collectOfflineEarnings,
-    gameLoaded,
+    gameLoaded, ownedSkins, buySkin, equipSkin, applyRandomEvent,
   };
 }

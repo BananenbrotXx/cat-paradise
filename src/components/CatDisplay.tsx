@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import type { CatMood } from "@/hooks/useCatGame";
+import { CAT_SKINS } from "@/components/SkinShop";
 import catHappy from "@/assets/cat-happy.png";
 import catTired from "@/assets/cat-tired.png";
 import catPlaying from "@/assets/cat-playing.png";
@@ -14,6 +15,7 @@ interface CatDisplayProps {
   level: number;
   xp: number;
   xpToNext: number;
+  activeSkin?: string;
 }
 
 function getCatImage(mood: CatMood, lastInteraction: string | null) {
@@ -30,9 +32,11 @@ const MOOD_CONFIG: Record<CatMood, { emoji: string; label: string; color: string
   sad: { emoji: "😢", label: "Traurig", color: "bg-muted text-muted-foreground" },
 };
 
-export default function CatDisplay({ mood, isAnimating, lastInteraction, floatingCoins, floatingHearts, onPet, level, xp, xpToNext }: CatDisplayProps) {
+export default function CatDisplay({ mood, isAnimating, lastInteraction, floatingCoins, floatingHearts, onPet, level, xp, xpToNext, activeSkin = "default" }: CatDisplayProps) {
   const [showImage, setShowImage] = useState(catHappy);
   const moodCfg = MOOD_CONFIG[mood];
+  const skinData = CAT_SKINS.find(s => s.id === activeSkin);
+  const skinClass = skinData?.cssClass || "";
 
   useEffect(() => {
     setShowImage(getCatImage(mood, lastInteraction));
@@ -83,7 +87,7 @@ export default function CatDisplay({ mood, isAnimating, lastInteraction, floatin
         <img
           src={showImage}
           alt="Deine Katze"
-          className={`relative w-52 h-52 object-contain drop-shadow-lg transition-transform duration-300 ${
+          className={`relative w-52 h-52 object-contain drop-shadow-lg transition-transform duration-300 ${skinClass} ${
             isAnimating ? "animate-wiggle" : "animate-float"
           }`}
         />
