@@ -30,6 +30,7 @@ export default function Index() {
     notification, completedQuests, totalQuests,
     actionCooldowns, skipAllCooldowns,
     addCoins, offlineEarnings, collectOfflineEarnings,
+    gameLoaded,
   } = useCatGame(user?.id);
 
   // Auth state listener
