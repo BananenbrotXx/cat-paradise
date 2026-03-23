@@ -166,6 +166,7 @@ export function useCatGame(userId?: string | null) {
   const loadedRef = useRef(false);
   const [gameLoaded, setGameLoaded] = useState(false);
   const [offlineEarnings, setOfflineEarnings] = useState<{ coins: number; minutes: number } | null>(null);
+  const [ownedSkins, setOwnedSkins] = useState<string[]>(["default"]);
 
   // Load saved game state from database
   useEffect(() => {
