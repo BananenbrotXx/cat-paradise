@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { CAT_SKINS, type CatSkin } from "@/components/SkinShop";
 
 export type CatMood = "happy" | "content" | "tired" | "hungry" | "sad";
 export type GameTab = "cat" | "village" | "shop" | "quests" | "leaderboard" | "admin" | "minigames";
