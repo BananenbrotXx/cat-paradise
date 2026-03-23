@@ -30,6 +30,7 @@ export default function Index() {
     notification, completedQuests, totalQuests,
     actionCooldowns, skipAllCooldowns,
     addCoins, offlineEarnings, collectOfflineEarnings,
+    gameLoaded,
   } = useCatGame(user?.id);
 
   // Auth state listener
@@ -105,7 +106,7 @@ export default function Index() {
     await supabase.auth.signOut();
   };
 
-  if (authLoading) {
+  if (authLoading || (!gameLoaded && user)) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">

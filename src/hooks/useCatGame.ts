@@ -160,12 +160,18 @@ export function useCatGame(userId?: string | null) {
   const [, setTick] = useState(0);
   const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const loadedRef = useRef(false);
+  const [gameLoaded, setGameLoaded] = useState(false);
   const [offlineEarnings, setOfflineEarnings] = useState<{ coins: number; minutes: number } | null>(null);
 
   // Load saved game state from database
   useEffect(() => {
-    if (!userId) return;
+    if (!userId) {
+      setGameLoaded(false);
+      loadedRef.current = false;
+      return;
+    }
     loadedRef.current = false;
+    setGameLoaded(false);
     const load = async () => {
       const { data } = await supabase
         .from("game_saves")
@@ -179,8 +185,8 @@ export function useCatGame(userId?: string | null) {
         if (lastOnline) {
           const diffMs = now.getTime() - lastOnline.getTime();
           const diffMin = diffMs / 60000;
-          if (diffMin >= 2) { // At least 2 min away
-            const baseRate = 0.5 + (data.level * 0.3); // coins per minute
+          if (diffMin >= 2) {
+            const baseRate = 0.5 + (data.level * 0.3);
             const happinessBonus = data.happiness / 100;
             const earned = Math.min(500, Math.round(diffMin * baseRate * (0.5 + happinessBonus)));
             if (earned > 0) {
@@ -207,6 +213,7 @@ export function useCatGame(userId?: string | null) {
         });
       }
       loadedRef.current = true;
+      setGameLoaded(true);
     };
     load();
   }, [userId]);
@@ -253,8 +260,9 @@ export function useCatGame(userId?: string | null) {
     return () => clearInterval(interval);
   }, []);
 
-  // Decay stats over time
+  // Decay stats over time - only after game is loaded
   useEffect(() => {
+    if (!gameLoaded) return;
     const interval = setInterval(() => {
       setCat((prev) => {
         const next = {
@@ -269,7 +277,7 @@ export function useCatGame(userId?: string | null) {
       });
     }, 3000);
     return () => clearInterval(interval);
-  }, []);
+  }, [gameLoaded]);
 
   const showNotification = useCallback((msg: string) => {
     setNotification(msg);
@@ -447,5 +455,6 @@ export function useCatGame(userId?: string | null) {
     notification, completedQuests, totalQuests: quests.length,
     actionCooldowns, skipAllCooldowns,
     addCoins, offlineEarnings, collectOfflineEarnings,
+    gameLoaded,
   };
 }
