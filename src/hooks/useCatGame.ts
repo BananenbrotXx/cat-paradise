@@ -260,8 +260,9 @@ export function useCatGame(userId?: string | null) {
     return () => clearInterval(interval);
   }, []);
 
-  // Decay stats over time
+  // Decay stats over time - only after game is loaded
   useEffect(() => {
+    if (!gameLoaded) return;
     const interval = setInterval(() => {
       setCat((prev) => {
         const next = {
@@ -276,7 +277,7 @@ export function useCatGame(userId?: string | null) {
       });
     }, 3000);
     return () => clearInterval(interval);
-  }, []);
+  }, [gameLoaded]);
 
   const showNotification = useCallback((msg: string) => {
     setNotification(msg);
