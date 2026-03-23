@@ -4,8 +4,6 @@ import { CAT_SKINS } from "@/components/SkinShop";
 import catHappy from "@/assets/cat-happy.png";
 import catTired from "@/assets/cat-tired.png";
 import catPlaying from "@/assets/cat-playing.png";
-import catTired from "@/assets/cat-tired.png";
-import catPlaying from "@/assets/cat-playing.png";
 
 interface CatDisplayProps {
   mood: CatMood;
