@@ -36,7 +36,8 @@ const MOOD_CONFIG: Record<CatMood, { emoji: string; label: string; color: string
 
 export default function CatDisplay({ mood, isAnimating, lastInteraction, floatingCoins, floatingHearts, onPet, level, xp, xpToNext, activeSkin = "default" }: CatDisplayProps) {
   const [showImage, setShowImage] = useState(catHappy);
-  const moodCfg = MOOD_CONFIG[mood];
+  const skinData = CAT_SKINS.find(s => s.id === activeSkin);
+  const skinClass = skinData?.cssClass || "";
 
   useEffect(() => {
     setShowImage(getCatImage(mood, lastInteraction));
