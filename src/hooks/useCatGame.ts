@@ -463,6 +463,48 @@ export function useCatGame(userId?: string | null) {
     }
   }, [offlineEarnings, addCoins]);
 
+  const buySkin = useCallback((skin: CatSkin) => {
+    if (cat.coins < skin.price || ownedSkins.includes(skin.id)) return;
+    setCat((prev) => ({
+      ...prev,
+      coins: prev.coins - skin.price,
+      activeSkin: skin.id,
+      multiplier: calculateMultiplier(prev, skin.multiplierBonus),
+    }));
+    setOwnedSkins((prev) => [...prev, skin.id]);
+    if (userId) {
+      supabase.from("cat_skins" as any).insert({ user_id: userId, skin_id: skin.id });
+    }
+    showNotification(`🎨 Skin "${skin.name}" freigeschaltet!`);
+  }, [cat.coins, ownedSkins, userId, showNotification]);
+
+  const equipSkin = useCallback((skinId: string) => {
+    if (!ownedSkins.includes(skinId)) return;
+    const skinBonus = CAT_SKINS.find(s => s.id === skinId)?.multiplierBonus || 0;
+    setCat((prev) => ({
+      ...prev,
+      activeSkin: skinId,
+      multiplier: calculateMultiplier(prev, skinBonus),
+    }));
+    showNotification(`🐱 Skin gewechselt!`);
+  }, [ownedSkins, showNotification]);
+
+  const applyRandomEvent = useCallback((effect: { coins?: number; hunger?: number; happiness?: number; energy?: number }) => {
+    setCat((prev) => {
+      const next = {
+        ...prev,
+        coins: Math.max(0, prev.coins + (effect.coins || 0)),
+        hunger: Math.min(100, Math.max(0, prev.hunger + (effect.hunger || 0))),
+        happiness: Math.min(100, Math.max(0, prev.happiness + (effect.happiness || 0))),
+        energy: Math.min(100, Math.max(0, prev.energy + (effect.energy || 0))),
+      };
+      next.mood = calculateMood(next);
+      const skinBonus = CAT_SKINS.find(s => s.id === next.activeSkin)?.multiplierBonus || 0;
+      next.multiplier = calculateMultiplier(next, skinBonus);
+      return next;
+    });
+  }, []);
+
   return {
     cat, quests, village, activeTab, setActiveTab,
     pet, play, rest, buyItem, visitLocation, claimQuest,
@@ -470,6 +512,6 @@ export function useCatGame(userId?: string | null) {
     notification, completedQuests, totalQuests: quests.length,
     actionCooldowns, skipAllCooldowns,
     addCoins, offlineEarnings, collectOfflineEarnings,
-    gameLoaded,
+    gameLoaded, ownedSkins, buySkin, equipSkin, applyRandomEvent,
   };
 }
