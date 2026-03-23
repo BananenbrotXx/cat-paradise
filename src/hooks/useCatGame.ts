@@ -147,6 +147,7 @@ const INITIAL_STATE: CatState = {
   level: 1,
   xp: 0,
   xpToNext: 50,
+  activeSkin: "default",
 };
 
 export function useCatGame(userId?: string | null) {
