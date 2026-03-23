@@ -14,6 +14,7 @@ interface CatDisplayProps {
   level: number;
   xp: number;
   xpToNext: number;
+  activeSkin?: string;
 }
 
 function getCatImage(mood: CatMood, lastInteraction: string | null) {
