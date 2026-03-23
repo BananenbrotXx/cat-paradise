@@ -455,5 +455,6 @@ export function useCatGame(userId?: string | null) {
     notification, completedQuests, totalQuests: quests.length,
     actionCooldowns, skipAllCooldowns,
     addCoins, offlineEarnings, collectOfflineEarnings,
+    gameLoaded,
   };
 }
