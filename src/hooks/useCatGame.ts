@@ -181,7 +181,7 @@ export function useCatGame(userId?: string | null) {
       // Load game save and skins in parallel
       const [saveResult, skinsResult] = await Promise.all([
         supabase.from("game_saves").select("*").eq("user_id", userId).maybeSingle(),
-        supabase.from("cat_skins" as any).select("skin_id").eq("user_id", userId),
+        supabase.from("cat_skins").select("skin_id").eq("user_id", userId),
       ]);
 
       const data = saveResult.data;
