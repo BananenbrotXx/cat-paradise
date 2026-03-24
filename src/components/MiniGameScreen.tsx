@@ -116,9 +116,16 @@ export default function MiniGameScreen({ onReward }: MiniGameScreenProps) {
       setReward(bonus);
       setGameState("found");
       onReward(bonus);
+      startCooldown();
     } else {
       setWrongClicks((prev) => new Set(prev).add(index));
     }
+  };
+
+  const formatCooldown = (ms: number) => {
+    const m = Math.floor(ms / 60000);
+    const s = Math.floor((ms % 60000) / 1000);
+    return `${m}:${s.toString().padStart(2, "0")}`;
   };
 
   return (
