@@ -1,9 +1,11 @@
 import { useState, useCallback, useEffect, useRef } from "react";
-import { Gamepad2, Search, Trophy, RotateCcw } from "lucide-react";
+import { Gamepad2, Search, Trophy, RotateCcw, Clock } from "lucide-react";
 
 interface MiniGameScreenProps {
   onReward: (coins: number) => void;
 }
+
+const COOLDOWN_MS = 10 * 60 * 1000; // 10 minutes
 
 // Room items that serve as distractors
 const ROOM_ITEMS = [
@@ -49,8 +51,33 @@ export default function MiniGameScreen({ onReward }: MiniGameScreenProps) {
   const [clickedIndex, setClickedIndex] = useState<number | null>(null);
   const [wrongClicks, setWrongClicks] = useState<Set<number>>(new Set());
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const [cooldownEnd, setCooldownEnd] = useState<number>(() => {
+    const saved = localStorage.getItem("minigame_cooldown");
+    return saved ? parseInt(saved, 10) : 0;
+  });
+  const [cooldownLeft, setCooldownLeft] = useState(0);
+
+  const onCooldown = cooldownLeft > 0;
+
+  // Cooldown ticker
+  useEffect(() => {
+    const tick = () => {
+      const remaining = Math.max(0, cooldownEnd - Date.now());
+      setCooldownLeft(remaining);
+    };
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, [cooldownEnd]);
+
+  const startCooldown = () => {
+    const end = Date.now() + COOLDOWN_MS;
+    setCooldownEnd(end);
+    localStorage.setItem("minigame_cooldown", end.toString());
+  };
 
   const startGame = useCallback(() => {
+    if (cooldownEnd > Date.now()) return;
     const items = shuffleArray(ROOM_ITEMS).slice(0, 19);
     const cells = items.map((item) => ({ emoji: item.emoji, isMouse: false }));
     const mIdx = Math.floor(Math.random() * 20);
@@ -61,7 +88,7 @@ export default function MiniGameScreen({ onReward }: MiniGameScreenProps) {
     setClickedIndex(null);
     setWrongClicks(new Set());
     setGameState("playing");
-  }, []);
+  }, [cooldownEnd]);
 
   // Timer
   useEffect(() => {
@@ -89,9 +116,16 @@ export default function MiniGameScreen({ onReward }: MiniGameScreenProps) {
       setReward(bonus);
       setGameState("found");
       onReward(bonus);
+      startCooldown();
     } else {
       setWrongClicks((prev) => new Set(prev).add(index));
     }
+  };
+
+  const formatCooldown = (ms: number) => {
+    const m = Math.floor(ms / 60000);
+    const s = Math.floor((ms % 60000) / 1000);
+    return `${m}:${s.toString().padStart(2, "0")}`;
   };
 
   return (
@@ -99,6 +133,13 @@ export default function MiniGameScreen({ onReward }: MiniGameScreenProps) {
       <div className="flex items-center gap-2">
         <Gamepad2 className="w-5 h-5 text-primary" />
         <h2 className="text-lg font-extrabold tracking-tight">Mini-Games</h2>
+        <span className="text-[10px] font-bold bg-secondary/20 text-secondary px-2 py-0.5 rounded-full">BETA</span>
+      </div>
+
+      <div className="game-card p-4 rounded-xl bg-secondary/5 border border-secondary/20 text-center">
+        <p className="text-xs text-muted-foreground">
+          🚧 Dieser Bereich ist noch in der <strong className="text-secondary">Beta</strong> — neue Spiele kommen bald!
+        </p>
       </div>
 
       <div className="game-card p-5 space-y-4">
@@ -126,12 +167,19 @@ export default function MiniGameScreen({ onReward }: MiniGameScreenProps) {
             <p className="text-xs text-muted-foreground">
               Je schneller du sie findest, desto mehr Coins bekommst du!
             </p>
-            <button
-              onClick={startGame}
-              className="px-6 py-2.5 rounded-xl bg-primary text-primary-foreground font-bold text-sm bounce-click"
-            >
-              🔍 Spiel starten
-            </button>
+            {onCooldown ? (
+              <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
+                <Clock className="w-4 h-4" />
+                <span className="font-bold tabular-nums">Nächstes Spiel in {formatCooldown(cooldownLeft)}</span>
+              </div>
+            ) : (
+              <button
+                onClick={startGame}
+                className="px-6 py-2.5 rounded-xl bg-primary text-primary-foreground font-bold text-sm bounce-click"
+              >
+                🔍 Spiel starten
+              </button>
+            )}
           </div>
         )}
 
@@ -164,12 +212,19 @@ export default function MiniGameScreen({ onReward }: MiniGameScreenProps) {
             <p className="text-xs text-muted-foreground">
               {timeLeft >= 10 ? "Blitzschnell! 🚀" : timeLeft >= 5 ? "Gut gemacht! 👍" : "Gerade noch rechtzeitig! 😅"}
             </p>
-            <button
-              onClick={startGame}
-              className="px-6 py-2.5 rounded-xl bg-primary text-primary-foreground font-bold text-sm bounce-click flex items-center gap-2 mx-auto"
-            >
-              <RotateCcw className="w-4 h-4" /> Nochmal spielen
-            </button>
+            {onCooldown ? (
+              <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
+                <Clock className="w-4 h-4" />
+                <span className="font-bold tabular-nums">Nächstes Spiel in {formatCooldown(cooldownLeft)}</span>
+              </div>
+            ) : (
+              <button
+                onClick={startGame}
+                className="px-6 py-2.5 rounded-xl bg-primary text-primary-foreground font-bold text-sm bounce-click flex items-center gap-2 mx-auto"
+              >
+                <RotateCcw className="w-4 h-4" /> Nochmal spielen
+              </button>
+            )}
           </div>
         )}
 
