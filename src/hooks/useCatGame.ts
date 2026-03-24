@@ -181,7 +181,7 @@ export function useCatGame(userId?: string | null) {
       // Load game save and skins in parallel
       const [saveResult, skinsResult] = await Promise.all([
         supabase.from("game_saves").select("*").eq("user_id", userId).maybeSingle(),
-        supabase.from("cat_skins" as any).select("skin_id").eq("user_id", userId),
+        supabase.from("cat_skins").select("skin_id").eq("user_id", userId),
       ]);
 
       const data = saveResult.data;
@@ -473,7 +473,9 @@ export function useCatGame(userId?: string | null) {
     }));
     setOwnedSkins((prev) => [...prev, skin.id]);
     if (userId) {
-      supabase.from("cat_skins" as any).insert({ user_id: userId, skin_id: skin.id });
+      supabase.from("cat_skins").insert({ user_id: userId, skin_id: skin.id }).then(({ error }) => {
+        if (error) console.error("Failed to save skin:", error);
+      });
     }
     showNotification(`🎨 Skin "${skin.name}" freigeschaltet!`);
   }, [cat.coins, ownedSkins, userId, showNotification]);
