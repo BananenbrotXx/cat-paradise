@@ -1,9 +1,11 @@
 import { useState, useCallback, useEffect, useRef } from "react";
-import { Gamepad2, Search, Trophy, RotateCcw } from "lucide-react";
+import { Gamepad2, Search, Trophy, RotateCcw, Clock } from "lucide-react";
 
 interface MiniGameScreenProps {
   onReward: (coins: number) => void;
 }
+
+const COOLDOWN_MS = 10 * 60 * 1000; // 10 minutes
 
 // Room items that serve as distractors
 const ROOM_ITEMS = [
