@@ -473,7 +473,9 @@ export function useCatGame(userId?: string | null) {
     }));
     setOwnedSkins((prev) => [...prev, skin.id]);
     if (userId) {
-      supabase.from("cat_skins" as any).insert({ user_id: userId, skin_id: skin.id });
+      supabase.from("cat_skins").insert({ user_id: userId, skin_id: skin.id }).then(({ error }) => {
+        if (error) console.error("Failed to save skin:", error);
+      });
     }
     showNotification(`🎨 Skin "${skin.name}" freigeschaltet!`);
   }, [cat.coins, ownedSkins, userId, showNotification]);
