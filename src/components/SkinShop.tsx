@@ -15,12 +15,12 @@ export interface CatSkin {
 
 export const CAT_SKINS: CatSkin[] = [
   { id: "default", name: "Normal", emoji: "🐱", price: 0, multiplierBonus: 0, description: "Das Original — Mochi pur!", rarity: "common", cssClass: "" },
-  { id: "tuxedo", name: "Smoking", emoji: "🎩", price: 500, multiplierBonus: 0.1, description: "Elegant und stilvoll", rarity: "common", cssClass: "brightness-110 contrast-110" },
-  { id: "ginger", name: "Ingwer", emoji: "🧡", price: 1500, multiplierBonus: 0.2, description: "Warm und kuschelig", rarity: "common", cssClass: "sepia-[0.3] saturate-150" },
-  { id: "midnight", name: "Mitternacht", emoji: "🌙", price: 5000, multiplierBonus: 0.3, description: "Geheimnisvoll wie die Nacht", rarity: "rare", cssClass: "brightness-75 contrast-125 hue-rotate-[220deg]" },
-  { id: "sakura", name: "Sakura", emoji: "🌸", price: 12000, multiplierBonus: 0.4, description: "Zart wie Kirschblüten", rarity: "rare", cssClass: "hue-rotate-[320deg] saturate-125 brightness-110" },
-  { id: "golden", name: "Golden", emoji: "✨", price: 30000, multiplierBonus: 0.5, description: "Glänzend und edel", rarity: "epic", cssClass: "sepia saturate-200 brightness-110 hue-rotate-[10deg]" },
-  { id: "galaxy", name: "Galaxie", emoji: "🌌", price: 75000, multiplierBonus: 0.7, description: "Aus den Sternen geboren", rarity: "epic", cssClass: "hue-rotate-[260deg] saturate-200 brightness-90 contrast-125" },
+  { id: "tuxedo", name: "Grau", emoji: "🖤", price: 500, multiplierBonus: 0.1, description: "Elegant und stilvoll", rarity: "common", cssClass: "grayscale-[0.7] brightness-110 contrast-110" },
+  { id: "ginger", name: "Rot", emoji: "❤️", price: 1500, multiplierBonus: 0.2, description: "Feuerrot und auffällig", rarity: "common", cssClass: "hue-rotate-[340deg] saturate-[2] brightness-105" },
+  { id: "midnight", name: "Blau", emoji: "💙", price: 5000, multiplierBonus: 0.3, description: "Cool wie der Ozean", rarity: "rare", cssClass: "hue-rotate-[190deg] saturate-[2.5] brightness-95" },
+  { id: "sakura", name: "Pink", emoji: "💖", price: 12000, multiplierBonus: 0.4, description: "Zart wie Kirschblüten", rarity: "rare", cssClass: "hue-rotate-[300deg] saturate-[2] brightness-110" },
+  { id: "golden", name: "Gold", emoji: "✨", price: 30000, multiplierBonus: 0.5, description: "Glänzend und edel", rarity: "epic", cssClass: "sepia saturate-[3] brightness-110 hue-rotate-[15deg]" },
+  { id: "galaxy", name: "Lila", emoji: "💜", price: 75000, multiplierBonus: 0.7, description: "Mystisch und selten", rarity: "epic", cssClass: "hue-rotate-[250deg] saturate-[2.5] brightness-90 contrast-110" },
   { id: "rainbow", name: "Regenbogen", emoji: "🌈", price: 200000, multiplierBonus: 1.0, description: "Der ultimative Skin — Legendär!", rarity: "legendary", cssClass: "animate-rainbow-hue saturate-150 brightness-110" },
 ];
 
