@@ -51,8 +51,33 @@ export default function MiniGameScreen({ onReward }: MiniGameScreenProps) {
   const [clickedIndex, setClickedIndex] = useState<number | null>(null);
   const [wrongClicks, setWrongClicks] = useState<Set<number>>(new Set());
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const [cooldownEnd, setCooldownEnd] = useState<number>(() => {
+    const saved = localStorage.getItem("minigame_cooldown");
+    return saved ? parseInt(saved, 10) : 0;
+  });
+  const [cooldownLeft, setCooldownLeft] = useState(0);
+
+  const onCooldown = cooldownLeft > 0;
+
+  // Cooldown ticker
+  useEffect(() => {
+    const tick = () => {
+      const remaining = Math.max(0, cooldownEnd - Date.now());
+      setCooldownLeft(remaining);
+    };
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, [cooldownEnd]);
+
+  const startCooldown = () => {
+    const end = Date.now() + COOLDOWN_MS;
+    setCooldownEnd(end);
+    localStorage.setItem("minigame_cooldown", end.toString());
+  };
 
   const startGame = useCallback(() => {
+    if (cooldownEnd > Date.now()) return;
     const items = shuffleArray(ROOM_ITEMS).slice(0, 19);
     const cells = items.map((item) => ({ emoji: item.emoji, isMouse: false }));
     const mIdx = Math.floor(Math.random() * 20);
@@ -63,7 +88,7 @@ export default function MiniGameScreen({ onReward }: MiniGameScreenProps) {
     setClickedIndex(null);
     setWrongClicks(new Set());
     setGameState("playing");
-  }, []);
+  }, [cooldownEnd]);
 
   // Timer
   useEffect(() => {
