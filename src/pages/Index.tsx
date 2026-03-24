@@ -6,7 +6,7 @@ import CatDisplay from "@/components/CatDisplay";
 import StatBars from "@/components/StatBars";
 import ActionButtons from "@/components/ActionButtons";
 import Shop from "@/components/Shop";
-import SkinShop from "@/components/SkinShop";
+import SkinShop, { CAT_SKINS } from "@/components/SkinShop";
 import MiniGameScreen from "@/components/MiniGameScreen";
 import DailyStreakPopup from "@/components/DailyStreakPopup";
 import OfflineEarningsPopup from "@/components/OfflineEarningsPopup";
@@ -183,7 +183,7 @@ export default function Index() {
             <StatBars hunger={cat.hunger} happiness={cat.happiness} energy={cat.energy} multiplier={cat.multiplier} />
             <ActionButtons onPet={pet} onPlay={play} onRest={rest} energy={cat.energy} actionCooldowns={actionCooldowns} />
             <div className="game-card p-3 text-center text-xs text-muted-foreground section-reveal section-reveal-delay-3">
-              Halte alle Stats hoch für bis zu <strong className="text-secondary">×3.0</strong> Münz-Bonus!
+              Halte alle Stats hoch für bis zu <strong className="text-secondary">×{(3.0 + (CAT_SKINS.find(s => s.id === cat.activeSkin)?.multiplierBonus || 0)).toFixed(1)}</strong> Münz-Bonus!
             </div>
           </div>
         )}
