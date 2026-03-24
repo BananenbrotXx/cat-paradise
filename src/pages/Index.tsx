@@ -6,7 +6,7 @@ import CatDisplay from "@/components/CatDisplay";
 import StatBars from "@/components/StatBars";
 import ActionButtons from "@/components/ActionButtons";
 import Shop from "@/components/Shop";
-import SkinShop from "@/components/SkinShop";
+import SkinShop, { CAT_SKINS } from "@/components/SkinShop";
 import MiniGameScreen from "@/components/MiniGameScreen";
 import DailyStreakPopup from "@/components/DailyStreakPopup";
 import OfflineEarningsPopup from "@/components/OfflineEarningsPopup";
