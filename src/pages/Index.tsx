@@ -183,7 +183,7 @@ export default function Index() {
             <StatBars hunger={cat.hunger} happiness={cat.happiness} energy={cat.energy} multiplier={cat.multiplier} />
             <ActionButtons onPet={pet} onPlay={play} onRest={rest} energy={cat.energy} actionCooldowns={actionCooldowns} />
             <div className="game-card p-3 text-center text-xs text-muted-foreground section-reveal section-reveal-delay-3">
-              Halte alle Stats hoch für bis zu <strong className="text-secondary">×{cat.multiplier.toFixed(1)}</strong> Münz-Bonus!
+              Halte alle Stats hoch für bis zu <strong className="text-secondary">×3.0</strong> Münz-Bonus!
             </div>
           </div>
         )}
