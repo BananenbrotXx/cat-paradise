@@ -232,16 +232,15 @@ export default function MiniGameScreen({ onReward }: MiniGameScreenProps) {
           <div
             className="relative w-full rounded-2xl overflow-hidden border-2 border-border"
             style={{ height: "340px", background: "linear-gradient(to bottom, hsl(var(--muted) / 0.3), hsl(var(--accent) / 0.2))" }}
-            style={{ height: "340px" }}
           >
-            {/* Room background elements */}
+            {/* Subtle pattern */}
             <div className="absolute inset-0 opacity-[0.07]"
               style={{
                 backgroundImage: "repeating-linear-gradient(45deg, transparent, transparent 20px, hsl(var(--primary)) 20px, hsl(var(--primary)) 21px)",
               }}
             />
-            <div className="absolute bottom-0 left-0 right-0 h-[35%] bg-gradient-to-t from-amber-100/40 to-transparent rounded-b-2xl" />
-            <div className="absolute top-0 left-0 right-0 h-[15%] bg-gradient-to-b from-orange-100/30 to-transparent" />
+            <div className="absolute bottom-0 left-0 right-0 h-[35%] bg-gradient-to-t from-accent/20 to-transparent rounded-b-2xl" />
+            <div className="absolute top-0 left-0 right-0 h-[15%] bg-gradient-to-b from-muted/30 to-transparent" />
 
             {items.map((item, i) => (
               <button
