@@ -150,6 +150,44 @@ const INITIAL_STATE: CatState = {
   activeSkin: "default",
 };
 
+// Helper to load quests from localStorage
+function loadQuests(userId: string): Quest[] {
+  try {
+    const saved = localStorage.getItem(`quests_${userId}`);
+    if (saved) {
+      const parsed = JSON.parse(saved) as Quest[];
+      // Merge with INITIAL_QUESTS to handle new quests added in updates
+      return INITIAL_QUESTS.map(iq => {
+        const saved = parsed.find(q => q.id === iq.id);
+        return saved ? { ...iq, progress: saved.progress, completed: saved.completed, claimed: saved.claimed } : iq;
+      });
+    }
+  } catch {}
+  return INITIAL_QUESTS;
+}
+
+function loadCooldowns(userId: string): ActionCooldowns {
+  try {
+    const saved = localStorage.getItem(`cooldowns_${userId}`);
+    if (saved) return JSON.parse(saved);
+  } catch {}
+  return { pet: null, play: null, rest: null };
+}
+
+function loadVillageCooldowns(userId: string): VillageLocation[] {
+  try {
+    const saved = localStorage.getItem(`village_${userId}`);
+    if (saved) {
+      const parsed = JSON.parse(saved) as Record<string, number | null>;
+      return VILLAGE_LOCATIONS.map(loc => ({
+        ...loc,
+        lastVisited: parsed[loc.id] ?? null,
+      }));
+    }
+  } catch {}
+  return VILLAGE_LOCATIONS;
+}
+
 export function useCatGame(userId?: string | null) {
   const [cat, setCat] = useState<CatState>(INITIAL_STATE);
   const [quests, setQuests] = useState<Quest[]>(INITIAL_QUESTS);
@@ -226,11 +264,36 @@ export function useCatGame(userId?: string | null) {
           return restored;
         });
       }
+      // Load persisted quests, cooldowns, and village from localStorage
+      setQuests(loadQuests(userId));
+      setActionCooldowns(loadCooldowns(userId));
+      setVillage(loadVillageCooldowns(userId));
+      
       loadedRef.current = true;
       setGameLoaded(true);
     };
     load();
   }, [userId]);
+
+  // Persist quests to localStorage
+  useEffect(() => {
+    if (!userId || !loadedRef.current) return;
+    localStorage.setItem(`quests_${userId}`, JSON.stringify(quests));
+  }, [quests, userId]);
+
+  // Persist action cooldowns to localStorage
+  useEffect(() => {
+    if (!userId || !loadedRef.current) return;
+    localStorage.setItem(`cooldowns_${userId}`, JSON.stringify(actionCooldowns));
+  }, [actionCooldowns, userId]);
+
+  // Persist village cooldowns to localStorage
+  useEffect(() => {
+    if (!userId || !loadedRef.current) return;
+    const villageTimes: Record<string, number | null> = {};
+    village.forEach(loc => { villageTimes[loc.id] = loc.lastVisited; });
+    localStorage.setItem(`village_${userId}`, JSON.stringify(villageTimes));
+  }, [village, userId]);
 
   // Auto-save game state (debounced)
   const saveGame = useCallback((state: CatState) => {
@@ -280,6 +343,7 @@ export function useCatGame(userId?: string | null) {
     if (!gameLoaded) return;
     const interval = setInterval(() => {
       setCat((prev) => {
+        const skinBonus = CAT_SKINS.find(s => s.id === prev.activeSkin)?.multiplierBonus || 0;
         const next = {
           ...prev,
           hunger: Math.max(0, prev.hunger - 0.8),
@@ -287,7 +351,7 @@ export function useCatGame(userId?: string | null) {
           energy: Math.min(100, prev.energy + 0.25),
         };
         next.mood = calculateMood(next);
-        next.multiplier = calculateMultiplier(next);
+        next.multiplier = calculateMultiplier(next, skinBonus);
         return next;
       });
     }, 3000);
@@ -363,10 +427,11 @@ export function useCatGame(userId?: string | null) {
     setTimeout(() => setIsAnimating(false), 600);
 
     setCat((prev) => {
+      const skinBonus = CAT_SKINS.find(s => s.id === prev.activeSkin)?.multiplierBonus || 0;
       const reward = Math.round(3 * prev.multiplier);
       const next = { ...prev, happiness: Math.min(100, prev.happiness + 8), energy: Math.max(0, prev.energy - 2), coins: prev.coins + reward, lastInteraction: "pet", totalInteractions: prev.totalInteractions + 1 };
       next.mood = calculateMood(next);
-      next.multiplier = calculateMultiplier(next);
+      next.multiplier = calculateMultiplier(next, skinBonus);
       addFloatingCoin(reward);
       addFloatingHeart();
       return next;
@@ -382,10 +447,11 @@ export function useCatGame(userId?: string | null) {
     setTimeout(() => setIsAnimating(false), 600);
 
     setCat((prev) => {
+      const skinBonus = CAT_SKINS.find(s => s.id === prev.activeSkin)?.multiplierBonus || 0;
       const reward = Math.round(5 * prev.multiplier);
       const next = { ...prev, happiness: Math.min(100, prev.happiness + 15), energy: Math.max(0, prev.energy - 12), hunger: Math.max(0, prev.hunger - 5), coins: prev.coins + reward, lastInteraction: "play", totalInteractions: prev.totalInteractions + 1 };
       next.mood = calculateMood(next);
-      next.multiplier = calculateMultiplier(next);
+      next.multiplier = calculateMultiplier(next, skinBonus);
       addFloatingCoin(reward);
       return next;
     });
@@ -400,10 +466,11 @@ export function useCatGame(userId?: string | null) {
     setTimeout(() => setIsAnimating(false), 600);
 
     setCat((prev) => {
+      const skinBonus = CAT_SKINS.find(s => s.id === prev.activeSkin)?.multiplierBonus || 0;
       const reward = Math.round(2 * prev.multiplier);
       const next = { ...prev, energy: Math.min(100, prev.energy + 25), happiness: Math.min(100, prev.happiness + 3), coins: prev.coins + reward, lastInteraction: "rest", totalInteractions: prev.totalInteractions + 1 };
       next.mood = calculateMood(next);
-      next.multiplier = calculateMultiplier(next);
+      next.multiplier = calculateMultiplier(next, skinBonus);
       addFloatingCoin(reward);
       return next;
     });
@@ -414,9 +481,10 @@ export function useCatGame(userId?: string | null) {
   const buyItem = useCallback((item: ShopItem) => {
     if (cat.coins < item.price) return false;
     setCat((prev) => {
+      const skinBonus = CAT_SKINS.find(s => s.id === prev.activeSkin)?.multiplierBonus || 0;
       const next = { ...prev, coins: prev.coins - item.price, hunger: Math.min(100, prev.hunger + (item.hungerRestore || 0)), happiness: Math.min(100, prev.happiness + (item.happinessBoost || 0)), energy: Math.min(100, Math.max(0, prev.energy + (item.energyBoost || 0))) };
       next.mood = calculateMood(next);
-      next.multiplier = calculateMultiplier(next);
+      next.multiplier = calculateMultiplier(next, skinBonus);
       return next;
     });
     addXp(2);
@@ -432,10 +500,11 @@ export function useCatGame(userId?: string | null) {
 
     setVillage((prev) => prev.map((l) => l.id === locationId ? { ...l, lastVisited: Date.now() } : l));
     setCat((prev) => {
+      const skinBonus = CAT_SKINS.find(s => s.id === prev.activeSkin)?.multiplierBonus || 0;
       const reward = Math.round(loc.coinReward * prev.multiplier);
       const next = { ...prev, coins: prev.coins + reward, hunger: Math.min(100, prev.hunger + (loc.statBoost.hunger || 0)), happiness: Math.min(100, prev.happiness + (loc.statBoost.happiness || 0)), energy: Math.min(100, Math.max(0, prev.energy + (loc.statBoost.energy || 0))) };
       next.mood = calculateMood(next);
-      next.multiplier = calculateMultiplier(next);
+      next.multiplier = calculateMultiplier(next, skinBonus);
       addFloatingCoin(reward);
       return next;
     });
