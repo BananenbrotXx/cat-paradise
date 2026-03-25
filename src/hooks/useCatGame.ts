@@ -518,6 +518,7 @@ export function useCatGame(userId?: string | null) {
   const skipAllCooldowns = useCallback(() => {
     setActionCooldowns({ pet: null, play: null, rest: null });
     setVillage((prev) => prev.map((l) => ({ ...l, lastVisited: null })));
+    localStorage.removeItem("minigame_cooldown");
     showNotification("⚡ Alle Cooldowns zurückgesetzt!");
   }, [showNotification]);
 
