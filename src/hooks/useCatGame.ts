@@ -150,6 +150,44 @@ const INITIAL_STATE: CatState = {
   activeSkin: "default",
 };
 
+// Helper to load quests from localStorage
+function loadQuests(userId: string): Quest[] {
+  try {
+    const saved = localStorage.getItem(`quests_${userId}`);
+    if (saved) {
+      const parsed = JSON.parse(saved) as Quest[];
+      // Merge with INITIAL_QUESTS to handle new quests added in updates
+      return INITIAL_QUESTS.map(iq => {
+        const saved = parsed.find(q => q.id === iq.id);
+        return saved ? { ...iq, progress: saved.progress, completed: saved.completed, claimed: saved.claimed } : iq;
+      });
+    }
+  } catch {}
+  return INITIAL_QUESTS;
+}
+
+function loadCooldowns(userId: string): ActionCooldowns {
+  try {
+    const saved = localStorage.getItem(`cooldowns_${userId}`);
+    if (saved) return JSON.parse(saved);
+  } catch {}
+  return { pet: null, play: null, rest: null };
+}
+
+function loadVillageCooldowns(userId: string): VillageLocation[] {
+  try {
+    const saved = localStorage.getItem(`village_${userId}`);
+    if (saved) {
+      const parsed = JSON.parse(saved) as Record<string, number | null>;
+      return VILLAGE_LOCATIONS.map(loc => ({
+        ...loc,
+        lastVisited: parsed[loc.id] ?? null,
+      }));
+    }
+  } catch {}
+  return VILLAGE_LOCATIONS;
+}
+
 export function useCatGame(userId?: string | null) {
   const [cat, setCat] = useState<CatState>(INITIAL_STATE);
   const [quests, setQuests] = useState<Quest[]>(INITIAL_QUESTS);
