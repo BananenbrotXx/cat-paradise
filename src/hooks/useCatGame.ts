@@ -280,6 +280,7 @@ export function useCatGame(userId?: string | null) {
     if (!gameLoaded) return;
     const interval = setInterval(() => {
       setCat((prev) => {
+        const skinBonus = CAT_SKINS.find(s => s.id === prev.activeSkin)?.multiplierBonus || 0;
         const next = {
           ...prev,
           hunger: Math.max(0, prev.hunger - 0.8),
@@ -287,7 +288,7 @@ export function useCatGame(userId?: string | null) {
           energy: Math.min(100, prev.energy + 0.25),
         };
         next.mood = calculateMood(next);
-        next.multiplier = calculateMultiplier(next);
+        next.multiplier = calculateMultiplier(next, skinBonus);
         return next;
       });
     }, 3000);
@@ -363,10 +364,11 @@ export function useCatGame(userId?: string | null) {
     setTimeout(() => setIsAnimating(false), 600);
 
     setCat((prev) => {
+      const skinBonus = CAT_SKINS.find(s => s.id === prev.activeSkin)?.multiplierBonus || 0;
       const reward = Math.round(3 * prev.multiplier);
       const next = { ...prev, happiness: Math.min(100, prev.happiness + 8), energy: Math.max(0, prev.energy - 2), coins: prev.coins + reward, lastInteraction: "pet", totalInteractions: prev.totalInteractions + 1 };
       next.mood = calculateMood(next);
-      next.multiplier = calculateMultiplier(next);
+      next.multiplier = calculateMultiplier(next, skinBonus);
       addFloatingCoin(reward);
       addFloatingHeart();
       return next;
@@ -382,10 +384,11 @@ export function useCatGame(userId?: string | null) {
     setTimeout(() => setIsAnimating(false), 600);
 
     setCat((prev) => {
+      const skinBonus = CAT_SKINS.find(s => s.id === prev.activeSkin)?.multiplierBonus || 0;
       const reward = Math.round(5 * prev.multiplier);
       const next = { ...prev, happiness: Math.min(100, prev.happiness + 15), energy: Math.max(0, prev.energy - 12), hunger: Math.max(0, prev.hunger - 5), coins: prev.coins + reward, lastInteraction: "play", totalInteractions: prev.totalInteractions + 1 };
       next.mood = calculateMood(next);
-      next.multiplier = calculateMultiplier(next);
+      next.multiplier = calculateMultiplier(next, skinBonus);
       addFloatingCoin(reward);
       return next;
     });
@@ -400,10 +403,11 @@ export function useCatGame(userId?: string | null) {
     setTimeout(() => setIsAnimating(false), 600);
 
     setCat((prev) => {
+      const skinBonus = CAT_SKINS.find(s => s.id === prev.activeSkin)?.multiplierBonus || 0;
       const reward = Math.round(2 * prev.multiplier);
       const next = { ...prev, energy: Math.min(100, prev.energy + 25), happiness: Math.min(100, prev.happiness + 3), coins: prev.coins + reward, lastInteraction: "rest", totalInteractions: prev.totalInteractions + 1 };
       next.mood = calculateMood(next);
-      next.multiplier = calculateMultiplier(next);
+      next.multiplier = calculateMultiplier(next, skinBonus);
       addFloatingCoin(reward);
       return next;
     });
@@ -414,9 +418,10 @@ export function useCatGame(userId?: string | null) {
   const buyItem = useCallback((item: ShopItem) => {
     if (cat.coins < item.price) return false;
     setCat((prev) => {
+      const skinBonus = CAT_SKINS.find(s => s.id === prev.activeSkin)?.multiplierBonus || 0;
       const next = { ...prev, coins: prev.coins - item.price, hunger: Math.min(100, prev.hunger + (item.hungerRestore || 0)), happiness: Math.min(100, prev.happiness + (item.happinessBoost || 0)), energy: Math.min(100, Math.max(0, prev.energy + (item.energyBoost || 0))) };
       next.mood = calculateMood(next);
-      next.multiplier = calculateMultiplier(next);
+      next.multiplier = calculateMultiplier(next, skinBonus);
       return next;
     });
     addXp(2);
@@ -432,10 +437,11 @@ export function useCatGame(userId?: string | null) {
 
     setVillage((prev) => prev.map((l) => l.id === locationId ? { ...l, lastVisited: Date.now() } : l));
     setCat((prev) => {
+      const skinBonus = CAT_SKINS.find(s => s.id === prev.activeSkin)?.multiplierBonus || 0;
       const reward = Math.round(loc.coinReward * prev.multiplier);
       const next = { ...prev, coins: prev.coins + reward, hunger: Math.min(100, prev.hunger + (loc.statBoost.hunger || 0)), happiness: Math.min(100, prev.happiness + (loc.statBoost.happiness || 0)), energy: Math.min(100, Math.max(0, prev.energy + (loc.statBoost.energy || 0))) };
       next.mood = calculateMood(next);
-      next.multiplier = calculateMultiplier(next);
+      next.multiplier = calculateMultiplier(next, skinBonus);
       addFloatingCoin(reward);
       return next;
     });
