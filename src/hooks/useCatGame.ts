@@ -264,11 +264,36 @@ export function useCatGame(userId?: string | null) {
           return restored;
         });
       }
+      // Load persisted quests, cooldowns, and village from localStorage
+      setQuests(loadQuests(userId));
+      setActionCooldowns(loadCooldowns(userId));
+      setVillage(loadVillageCooldowns(userId));
+      
       loadedRef.current = true;
       setGameLoaded(true);
     };
     load();
   }, [userId]);
+
+  // Persist quests to localStorage
+  useEffect(() => {
+    if (!userId || !loadedRef.current) return;
+    localStorage.setItem(`quests_${userId}`, JSON.stringify(quests));
+  }, [quests, userId]);
+
+  // Persist action cooldowns to localStorage
+  useEffect(() => {
+    if (!userId || !loadedRef.current) return;
+    localStorage.setItem(`cooldowns_${userId}`, JSON.stringify(actionCooldowns));
+  }, [actionCooldowns, userId]);
+
+  // Persist village cooldowns to localStorage
+  useEffect(() => {
+    if (!userId || !loadedRef.current) return;
+    const villageTimes: Record<string, number | null> = {};
+    village.forEach(loc => { villageTimes[loc.id] = loc.lastVisited; });
+    localStorage.setItem(`village_${userId}`, JSON.stringify(villageTimes));
+  }, [village, userId]);
 
   // Auto-save game state (debounced)
   const saveGame = useCallback((state: CatState) => {
