@@ -230,7 +230,8 @@ export default function MiniGameScreen({ onReward }: MiniGameScreenProps) {
 
         {gameState === "playing" && (
           <div
-            className="relative w-full rounded-2xl overflow-hidden border-2 border-border bg-gradient-to-b from-amber-50 to-orange-50"
+            className="relative w-full rounded-2xl overflow-hidden border-2 border-border"
+            style={{ height: "340px", background: "linear-gradient(to bottom, hsl(var(--muted) / 0.3), hsl(var(--accent) / 0.2))" }}
             style={{ height: "340px" }}
           >
             {/* Room background elements */}
