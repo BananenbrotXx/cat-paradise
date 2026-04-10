@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Shield, Search, Ban, Zap, Undo2, Users } from "lucide-react";
+import { Shield, Search, Ban, Zap, Undo2, Users, Coins } from "lucide-react";
 
 interface AdminPanelProps {
   onSkipCooldowns: () => void;
@@ -16,6 +16,8 @@ export default function AdminPanel({ onSkipCooldowns }: AdminPanelProps) {
   const [searchName, setSearchName] = useState("");
   const [banName, setBanName] = useState("");
   const [unbanName, setUnbanName] = useState("");
+  const [coinName, setCoinName] = useState("");
+  const [coinAmount, setCoinAmount] = useState("");
   const [lookupResult, setLookupResult] = useState<{ email: string; display_name: string } | null>(null);
   const [message, setMessage] = useState<{ text: string; type: "success" | "error" } | null>(null);
   const [loading, setLoading] = useState(false);
@@ -169,6 +171,33 @@ export default function AdminPanel({ onSkipCooldowns }: AdminPanelProps) {
             Entbannen
           </button>
         </div>
+      </div>
+
+      {/* Give Coins */}
+      <div className="game-card p-4 space-y-3">
+        <h3 className="text-sm font-bold flex items-center gap-2"><Coins className="w-4 h-4 text-amber-500" /> Münzen geben</h3>
+        <div className="flex gap-2">
+          <input
+            value={coinName}
+            onChange={(e) => setCoinName(e.target.value)}
+            placeholder="Anzeigename..."
+            className="flex-1 px-3 py-2 rounded-lg border border-border bg-background text-sm"
+          />
+          <input
+            value={coinAmount}
+            onChange={(e) => setCoinAmount(e.target.value.replace(/\D/g, ""))}
+            placeholder="Anzahl"
+            className="w-20 px-3 py-2 rounded-lg border border-border bg-background text-sm"
+            onKeyDown={(e) => e.key === "Enter" && handleGiveCoins()}
+          />
+        </div>
+        <button
+          onClick={handleGiveCoins}
+          disabled={loading || !coinName.trim() || !coinAmount}
+          className="w-full py-2.5 rounded-xl bg-amber-500 text-white font-bold text-sm hover:bg-amber-600 transition-colors active:scale-[0.97] disabled:opacity-50"
+        >
+          🪙 Münzen senden
+        </button>
       </div>
 
       {/* Banned Users List */}
