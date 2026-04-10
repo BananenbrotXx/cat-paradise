@@ -150,18 +150,62 @@ const INITIAL_STATE: CatState = {
   activeSkin: "default",
 };
 
-// Helper to load quests from localStorage
+// Get next 00:00 CET reset time
+function getNextQuestResetCET(): number {
+  const now = new Date();
+  // Get current date/time in Europe/Berlin
+  const berlinStr = now.toLocaleString("en-GB", { timeZone: "Europe/Berlin", hour12: false });
+  // Parse "DD/MM/YYYY, HH:MM:SS"
+  const [datePart, timePart] = berlinStr.split(", ");
+  const [day, month, year] = datePart.split("/").map(Number);
+  const [hour, minute] = timePart.split(":").map(Number);
+
+  // Calculate next midnight CET: create a date for today midnight CET
+  // CET midnight = 23:00 UTC previous day (or 22:00 UTC during CEST)
+  // Use a simpler approach: construct "tomorrow 00:00" in Berlin timezone
+  const todayMidnightBerlin = new Date(
+    new Date().toLocaleString("en-US", { timeZone: "Europe/Berlin" })
+  );
+  todayMidnightBerlin.setHours(0, 0, 0, 0);
+
+  // If we haven't passed midnight Berlin yet, reset is today at midnight
+  // But since we parsed the time, if hour >= 0 we already passed it
+  // So next reset is always tomorrow at 00:00 Berlin
+  const tomorrowMidnightBerlin = new Date(todayMidnightBerlin);
+  tomorrowMidnightBerlin.setDate(tomorrowMidnightBerlin.getDate() + 1);
+
+  // Convert back: get the UTC offset for Berlin at that time
+  // Simple approach: calculate diff between local interpretation and actual now
+  const berlinNow = new Date(now.toLocaleString("en-US", { timeZone: "Europe/Berlin" }));
+  const offsetMs = berlinNow.getTime() - now.getTime();
+
+  return tomorrowMidnightBerlin.getTime() - offsetMs;
+}
+
+// Helper to load quests from localStorage, with daily reset at 00:00 CET
 function loadQuests(userId: string): Quest[] {
   try {
     const saved = localStorage.getItem(`quests_${userId}`);
-    if (saved) {
+    const lastReset = localStorage.getItem(`quests_reset_${userId}`);
+    if (saved && lastReset) {
+      const lastResetTime = parseInt(lastReset, 10);
+      // Check if we've passed midnight CET since last reset
+      const berlinNow = new Date(new Date().toLocaleString("en-US", { timeZone: "Europe/Berlin" }));
+      const berlinReset = new Date(new Date(lastResetTime).toLocaleString("en-US", { timeZone: "Europe/Berlin" }));
+      // If the date (day) changed in Berlin timezone, reset quests
+      if (berlinNow.toDateString() !== berlinReset.toDateString()) {
+        localStorage.setItem(`quests_reset_${userId}`, Date.now().toString());
+        localStorage.setItem(`quests_${userId}`, JSON.stringify(INITIAL_QUESTS));
+        return INITIAL_QUESTS;
+      }
       const parsed = JSON.parse(saved) as Quest[];
-      // Merge with INITIAL_QUESTS to handle new quests added in updates
       return INITIAL_QUESTS.map(iq => {
-        const saved = parsed.find(q => q.id === iq.id);
-        return saved ? { ...iq, progress: saved.progress, completed: saved.completed, claimed: saved.claimed } : iq;
+        const s = parsed.find(q => q.id === iq.id);
+        return s ? { ...iq, progress: s.progress, completed: s.completed, claimed: s.claimed } : iq;
       });
     }
+    // First time — set reset timestamp
+    localStorage.setItem(`quests_reset_${userId}`, Date.now().toString());
   } catch {}
   return INITIAL_QUESTS;
 }
