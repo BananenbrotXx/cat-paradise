@@ -92,6 +92,20 @@ export default function AdminPanel({ onSkipCooldowns }: AdminPanelProps) {
     }
   };
 
+  const handleGiveCoins = async () => {
+    if (!coinName.trim() || !coinAmount) return;
+    setLoading(true);
+    const res = await callAdmin("give_coins", { display_name: coinName.trim(), amount: coinAmount });
+    setLoading(false);
+    if (res?.error || res?.data?.error) {
+      showMsg(res?.data?.error || "Fehler", "error");
+    } else {
+      showMsg(`${coinAmount} Münzen an ${coinName} gesendet!`, "success");
+      setCoinName("");
+      setCoinAmount("");
+    }
+  };
+
   return (
     <div className="space-y-4 tab-content-enter" key="admin">
       <div className="flex items-center gap-2">
