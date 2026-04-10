@@ -1,5 +1,25 @@
+import { useState, useEffect } from "react";
 import type { Quest } from "@/hooks/useCatGame";
-import { Scroll, Check, Gift } from "lucide-react";
+import { Scroll, Check, Gift, Clock } from "lucide-react";
+
+function getNextMidnightCET(): number {
+  const now = new Date();
+  const berlinNow = new Date(now.toLocaleString("en-US", { timeZone: "Europe/Berlin" }));
+  const todayMidnight = new Date(berlinNow);
+  todayMidnight.setHours(0, 0, 0, 0);
+  const tomorrowMidnight = new Date(todayMidnight);
+  tomorrowMidnight.setDate(tomorrowMidnight.getDate() + 1);
+  const offsetMs = berlinNow.getTime() - now.getTime();
+  return tomorrowMidnight.getTime() - offsetMs;
+}
+
+function formatCountdown(ms: number): string {
+  if (ms <= 0) return "0:00:00";
+  const h = Math.floor(ms / 3600000);
+  const m = Math.floor((ms % 3600000) / 60000);
+  const s = Math.floor((ms % 60000) / 1000);
+  return `${h}:${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
+}
 
 interface QuestScreenProps {
   quests: Quest[];
@@ -9,6 +29,14 @@ interface QuestScreenProps {
 
 export default function QuestScreen({ quests, onClaim, multiplier }: QuestScreenProps) {
   const completed = quests.filter((q) => q.completed).length;
+  const [resetIn, setResetIn] = useState(() => Math.max(0, getNextMidnightCET() - Date.now()));
+
+  useEffect(() => {
+    const id = setInterval(() => {
+      setResetIn(Math.max(0, getNextMidnightCET() - Date.now()));
+    }, 1000);
+    return () => clearInterval(id);
+  }, []);
 
   return (
     <div className="space-y-4 tab-content-enter" key="quests">
@@ -21,6 +49,12 @@ export default function QuestScreen({ quests, onClaim, multiplier }: QuestScreen
         <div className="text-xs font-bold text-muted-foreground bg-muted/60 px-2.5 py-1 rounded-full">
           {completed}/{quests.length} ✓
         </div>
+      </div>
+
+      {/* Reset countdown */}
+      <div className="game-card p-3 flex items-center justify-center gap-2 text-xs text-muted-foreground">
+        <Clock className="w-3.5 h-3.5" />
+        <span className="font-bold">Neue Quests in <span className="tabular-nums text-primary">{formatCountdown(resetIn)}</span></span>
       </div>
 
       {/* Progress overview */}
