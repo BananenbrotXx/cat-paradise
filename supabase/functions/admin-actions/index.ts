@@ -74,5 +74,26 @@ Deno.serve(async (req) => {
     return new Response(JSON.stringify(results), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
   }
 
+  // GIVE COINS to user by display_name
+  if (action === "give_coins") {
+    const { display_name, amount } = params;
+    const coinAmount = parseInt(amount, 10);
+    if (!display_name || isNaN(coinAmount) || coinAmount <= 0) {
+      return new Response(JSON.stringify({ error: "Invalid display_name or amount" }), { status: 400, headers: corsHeaders });
+    }
+    const { data: profile } = await adminClient.from("profiles").select("user_id").eq("display_name", display_name).maybeSingle();
+    if (!profile) return new Response(JSON.stringify({ error: "User not found" }), { status: 404, headers: corsHeaders });
+
+    // Get current coins from game_saves
+    const { data: save } = await adminClient.from("game_saves").select("coins").eq("user_id", profile.user_id).maybeSingle();
+    if (!save) return new Response(JSON.stringify({ error: "No game save found for user" }), { status: 404, headers: corsHeaders });
+
+    const newCoins = save.coins + coinAmount;
+    await adminClient.from("game_saves").update({ coins: newCoins }).eq("user_id", profile.user_id);
+    // Also update leaderboard
+    await adminClient.from("leaderboard").update({ coins: newCoins }).eq("user_id", profile.user_id);
+    return new Response(JSON.stringify({ success: true, new_coins: newCoins }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+  }
+
   return new Response(JSON.stringify({ error: "Unknown action" }), { status: 400, headers: corsHeaders });
 });

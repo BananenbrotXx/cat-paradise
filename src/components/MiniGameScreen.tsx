@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import { Gamepad2, Search, Trophy, RotateCcw, Clock } from "lucide-react";
+import MemoryGame from "./MemoryGame";
 
 interface MiniGameScreenProps {
   onReward: (coins: number) => void;
@@ -306,6 +307,9 @@ export default function MiniGameScreen({ onReward }: MiniGameScreenProps) {
           </div>
         )}
       </div>
+
+      {/* Memory Game */}
+      <MemoryGame onReward={onReward} />
     </div>
   );
 }
