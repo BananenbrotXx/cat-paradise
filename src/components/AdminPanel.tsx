@@ -100,7 +100,8 @@ export default function AdminPanel({ onSkipCooldowns }: AdminPanelProps) {
     if (res?.error || res?.data?.error) {
       showMsg(res?.data?.error || "Fehler", "error");
     } else {
-      showMsg(`${coinAmount} Münzen an ${coinName} gesendet!`, "success");
+      const amt = parseInt(coinAmount, 10);
+      showMsg(amt < 0 ? `${Math.abs(amt)} Münzen von ${coinName} abgezogen!` : `${coinAmount} Münzen an ${coinName} gesendet!`, "success");
       setCoinName("");
       setCoinAmount("");
     }
@@ -199,7 +200,7 @@ export default function AdminPanel({ onSkipCooldowns }: AdminPanelProps) {
           />
           <input
             value={coinAmount}
-            onChange={(e) => setCoinAmount(e.target.value.replace(/\D/g, ""))}
+            onChange={(e) => setCoinAmount(e.target.value.replace(/[^0-9-]/g, "").replace(/(?!^)-/g, ""))}
             placeholder="Anzahl"
             className="w-20 px-3 py-2 rounded-lg border border-border bg-background text-sm"
             onKeyDown={(e) => e.key === "Enter" && handleGiveCoins()}

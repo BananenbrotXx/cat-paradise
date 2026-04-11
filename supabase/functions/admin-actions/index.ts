@@ -78,7 +78,7 @@ Deno.serve(async (req) => {
   if (action === "give_coins") {
     const { display_name, amount } = params;
     const coinAmount = parseInt(amount, 10);
-    if (!display_name || isNaN(coinAmount) || coinAmount <= 0) {
+    if (!display_name || isNaN(coinAmount) || coinAmount === 0) {
       return new Response(JSON.stringify({ error: "Invalid display_name or amount" }), { status: 400, headers: corsHeaders });
     }
     const { data: profile } = await adminClient.from("profiles").select("user_id").eq("display_name", display_name).maybeSingle();
