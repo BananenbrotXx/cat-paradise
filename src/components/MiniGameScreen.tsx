@@ -182,13 +182,6 @@ export default function MiniGameScreen({ onReward }: MiniGameScreenProps) {
       <div className="flex items-center gap-2">
         <Gamepad2 className="w-5 h-5 text-primary" />
         <h2 className="text-lg font-extrabold tracking-tight">Mini-Games</h2>
-        <span className="text-[10px] font-bold bg-secondary/20 text-secondary px-2 py-0.5 rounded-full">BETA</span>
-      </div>
-
-      <div className="game-card p-4 rounded-xl bg-secondary/5 border border-secondary/20 text-center">
-        <p className="text-xs text-muted-foreground">
-          🚧 Dieser Bereich ist noch in der <strong className="text-secondary">Beta</strong> — neue Spiele kommen bald!
-        </p>
       </div>
 
       <div className="game-card p-5 space-y-4">
