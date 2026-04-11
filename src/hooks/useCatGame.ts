@@ -564,6 +564,9 @@ export function useCatGame(userId?: string | null) {
     setVillage((prev) => prev.map((l) => ({ ...l, lastVisited: null })));
     localStorage.removeItem("minigame_cooldown");
     localStorage.removeItem("memory_cooldown");
+    localStorage.removeItem("reaction_cooldown");
+    localStorage.removeItem("emojiquiz_cooldown");
+    localStorage.removeItem("catch_cooldown");
     showNotification("⚡ Alle Cooldowns zurückgesetzt!");
   }, [showNotification]);
 
