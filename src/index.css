@@ -139,3 +139,15 @@
 .animate-sparkle {
   animation: sparkle 2s ease-in-out infinite;
 }
+
+@keyframes kawaiiDrift {
+  0% { transform: translateY(0) translateX(0) rotate(0deg); }
+  25% { transform: translateY(-30px) translateX(15px) rotate(5deg); }
+  50% { transform: translateY(-10px) translateX(-10px) rotate(-3deg); }
+  75% { transform: translateY(-40px) translateX(8px) rotate(4deg); }
+  100% { transform: translateY(0) translateX(0) rotate(0deg); }
+}
+
+.animate-kawaii-drift {
+  animation: kawaiiDrift linear infinite;
+}
