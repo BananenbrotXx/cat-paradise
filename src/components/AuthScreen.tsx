@@ -32,7 +32,7 @@ export default function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
           },
         });
         if (error) throw error;
-        setSuccess("Registrierung erfolgreich! Überprüfe deine E-Mail.");
+        setSuccess("Registrierung erfolgreich! Überprüfe deine E-Mail. ✉️");
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
@@ -46,13 +46,13 @@ export default function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4">
-      <div className="game-card p-6 w-full max-w-sm space-y-5 tab-content-enter">
+    <div className="min-h-screen flex items-center justify-center px-4 kawaii-gradient">
+      <div className="game-card p-7 w-full max-w-sm space-y-5 tab-content-enter">
         <div className="text-center">
-          <div className="text-4xl mb-2">🐱</div>
-          <h1 className="text-xl font-extrabold">Cat Paradise</h1>
-          <p className="text-xs text-muted-foreground mt-1">
-            {mode === "login" ? "Willkommen zurück!" : "Erstelle dein Konto"}
+          <div className="text-5xl mb-3 animate-float">🐱</div>
+          <h1 className="text-2xl font-extrabold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">Cat Paradise</h1>
+          <p className="text-xs text-muted-foreground mt-1.5 font-semibold">
+            {mode === "login" ? "Willkommen zurück! 💕" : "Erstelle dein Konto ✨"}
           </p>
         </div>
 
@@ -65,7 +65,7 @@ export default function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
                 placeholder="Anzeigename"
                 value={displayName}
                 onChange={(e) => setDisplayName(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-background border border-border text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-primary/30"
+                className="w-full pl-10 pr-4 py-3 rounded-2xl bg-background border-2 border-border text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/30 transition-all"
               />
             </div>
           )}
@@ -77,7 +77,7 @@ export default function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-background border border-border text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-primary/30"
+              className="w-full pl-10 pr-4 py-3 rounded-2xl bg-background border-2 border-border text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/30 transition-all"
             />
           </div>
           <div className="relative">
@@ -89,7 +89,7 @@ export default function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
               onChange={(e) => setPassword(e.target.value)}
               required
               minLength={6}
-              className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-background border border-border text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-primary/30"
+              className="w-full pl-10 pr-4 py-3 rounded-2xl bg-background border-2 border-border text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/30 transition-all"
             />
           </div>
 
@@ -99,7 +99,7 @@ export default function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-2.5 rounded-xl bg-primary text-primary-foreground font-bold text-sm bounce-click disabled:opacity-50 flex items-center justify-center gap-2"
+            className="w-full py-3 rounded-2xl bg-gradient-to-r from-primary to-secondary text-primary-foreground font-bold text-sm bounce-click disabled:opacity-50 flex items-center justify-center gap-2 shadow-[0_4px_16px_-2px_hsl(330_65%_65%_/_0.35)]"
           >
             {loading ? (
               <div className="w-4 h-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
@@ -114,9 +114,9 @@ export default function AuthScreen({ onAuthSuccess }: AuthScreenProps) {
         <div className="text-center">
           <button
             onClick={() => { setMode(mode === "login" ? "signup" : "login"); setError(null); setSuccess(null); }}
-            className="text-xs font-bold text-primary hover:underline"
+            className="text-xs font-bold text-primary hover:text-secondary transition-colors"
           >
-            {mode === "login" ? "Noch kein Konto? Registrieren" : "Schon ein Konto? Anmelden"}
+            {mode === "login" ? "Noch kein Konto? Registrieren ✨" : "Schon ein Konto? Anmelden 💕"}
           </button>
         </div>
       </div>
