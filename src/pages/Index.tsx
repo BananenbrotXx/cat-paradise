@@ -19,6 +19,7 @@ import BottomNav from "@/components/BottomNav";
 import NotificationToast from "@/components/NotificationToast";
 import AuthScreen from "@/components/AuthScreen";
 import { LogOut } from "lucide-react";
+import KawaiiBackground from "@/components/KawaiiBackground";
 
 export default function Index() {
   const [user, setUser] = useState<User | null>(null);
@@ -127,7 +128,8 @@ export default function Index() {
   const claimableQuests = quests.filter((q) => q.completed && !q.claimed).length;
 
   return (
-    <div className="min-h-screen pb-20">
+    <div className="min-h-screen pb-20 relative">
+      <KawaiiBackground />
       <NotificationToast message={notification} />
 
       {/* Daily Streak */}
