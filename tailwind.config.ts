@@ -95,8 +95,14 @@ export default {
           "75%": { transform: "rotate(5deg)" },
         },
         "pulse-glow": {
-          "0%, 100%": { boxShadow: "0 0 0 0 hsla(22, 90%, 55%, 0.4)" },
-          "50%": { boxShadow: "0 0 20px 8px hsla(22, 90%, 55%, 0.15)" },
+          "0%, 100%": { boxShadow: "0 0 0 0 hsla(330, 65%, 65%, 0.4)" },
+          "50%": { boxShadow: "0 0 20px 8px hsla(330, 65%, 65%, 0.15)" },
+        },
+        "bounce-in": {
+          "0%": { transform: "scale(0.3)", opacity: "0" },
+          "50%": { transform: "scale(1.05)" },
+          "70%": { transform: "scale(0.9)" },
+          "100%": { transform: "scale(1)", opacity: "1" },
         },
         "coin-pop": {
           "0%": { transform: "scale(0) translateY(0)", opacity: "1" },

@@ -6,53 +6,53 @@
 
 @layer base {
   :root {
-    --background: 32 45% 97%;
-    --foreground: 25 35% 15%;
+    --background: 330 50% 97%;
+    --foreground: 280 20% 20%;
 
-    --card: 33 40% 94%;
-    --card-foreground: 25 35% 15%;
+    --card: 330 45% 95%;
+    --card-foreground: 280 20% 20%;
 
-    --popover: 32 45% 97%;
-    --popover-foreground: 25 35% 15%;
+    --popover: 330 50% 97%;
+    --popover-foreground: 280 20% 20%;
 
-    --primary: 22 90% 55%;
+    --primary: 330 65% 65%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 345 50% 62%;
+    --secondary: 270 55% 72%;
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 30 20% 90%;
-    --muted-foreground: 25 12% 48%;
+    --muted: 330 25% 92%;
+    --muted-foreground: 280 10% 50%;
 
-    --accent: 42 95% 62%;
-    --accent-foreground: 30 40% 15%;
+    --accent: 170 45% 72%;
+    --accent-foreground: 170 40% 18%;
 
-    --destructive: 0 72% 55%;
+    --destructive: 0 65% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 30 20% 86%;
-    --input: 30 20% 86%;
-    --ring: 22 90% 55%;
+    --border: 330 30% 88%;
+    --input: 330 30% 88%;
+    --ring: 330 65% 65%;
 
-    --radius: 1rem;
+    --radius: 1.25rem;
 
-    --coin: 42 95% 48%;
+    --coin: 42 90% 58%;
     --coin-foreground: 35 55% 18%;
-    --health: 152 55% 42%;
-    --hunger: 22 90% 55%;
-    --happiness: 345 50% 62%;
-    --energy: 205 65% 52%;
-    --quest: 270 45% 58%;
-    --village: 155 50% 42%;
+    --health: 155 50% 55%;
+    --hunger: 25 80% 65%;
+    --happiness: 330 65% 65%;
+    --energy: 210 60% 65%;
+    --quest: 270 55% 65%;
+    --village: 155 45% 50%;
 
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 240 5.9% 10%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-background: 330 50% 97%;
+    --sidebar-foreground: 280 20% 20%;
+    --sidebar-primary: 330 65% 65%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 330 25% 92%;
+    --sidebar-accent-foreground: 280 20% 20%;
+    --sidebar-border: 330 30% 88%;
+    --sidebar-ring: 330 65% 65%;
   }
 }
 
@@ -69,15 +69,15 @@
 
 @layer utilities {
   .stat-bar {
-    @apply h-3 rounded-full transition-all duration-500 ease-out;
+    @apply h-3.5 rounded-full transition-all duration-500 ease-out;
   }
 
   .game-card {
-    @apply bg-card rounded-2xl shadow-[0_2px_12px_-2px_rgba(0,0,0,0.08)] hover:shadow-[0_4px_20px_-4px_rgba(0,0,0,0.12)] transition-shadow duration-300;
+    @apply bg-card rounded-3xl border-2 border-border/50 shadow-[0_4px_24px_-4px_rgba(200,150,200,0.15)] hover:shadow-[0_6px_32px_-4px_rgba(200,150,200,0.25)] transition-all duration-300;
   }
 
   .bounce-click {
-    @apply active:scale-[0.97] transition-transform duration-150;
+    @apply active:scale-[0.95] transition-transform duration-150;
   }
 
   .section-reveal {
@@ -99,21 +99,21 @@
   .tab-content-enter {
     animation: tabFade 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
   }
+
+  .kawaii-gradient {
+    background: linear-gradient(135deg, hsl(330 65% 65% / 0.08), hsl(270 55% 72% / 0.08), hsl(170 45% 72% / 0.08));
+  }
+
+  .kawaii-border {
+    @apply border-2 border-dashed border-primary/20;
+  }
 }
 
-@-webkit-keyframes sectionEnter {
-  from { opacity: 0; transform: translateY(12px); filter: blur(4px); }
-  to { opacity: 1; transform: translateY(0); filter: blur(0px); }
-}
 @keyframes sectionEnter {
-  from { opacity: 0; transform: translateY(12px); filter: blur(4px); }
-  to { opacity: 1; transform: translateY(0); filter: blur(0px); }
+  from { opacity: 0; transform: translateY(12px) scale(0.97); filter: blur(4px); }
+  to { opacity: 1; transform: translateY(0) scale(1); filter: blur(0px); }
 }
 
-@-webkit-keyframes tabFade {
-  from { opacity: 0; transform: translateY(6px); }
-  to { opacity: 1; transform: translateY(0); }
-}
 @keyframes tabFade {
   from { opacity: 0; transform: translateY(6px); }
   to { opacity: 1; transform: translateY(0); }
@@ -129,4 +129,13 @@
 
 .animate-rainbow-hue {
   animation: rainbowHue 3s linear infinite;
+}
+
+@keyframes sparkle {
+  0%, 100% { opacity: 0; transform: scale(0) rotate(0deg); }
+  50% { opacity: 1; transform: scale(1) rotate(180deg); }
+}
+
+.animate-sparkle {
+  animation: sparkle 2s ease-in-out infinite;
 }
