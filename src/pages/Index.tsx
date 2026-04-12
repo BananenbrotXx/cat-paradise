@@ -146,19 +146,19 @@ export default function Index() {
       <RandomEventPopup onApplyEvent={applyRandomEvent} gameLoaded={gameLoaded} />
 
       {/* Header */}
-      <header className="sticky top-0 z-20 bg-background/80 backdrop-blur-md border-b border-border/60">
+      <header className="sticky top-0 z-20 bg-card/90 backdrop-blur-lg border-b-2 border-primary/10">
         <div className="max-w-lg mx-auto px-4 py-2.5 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <h1 className="text-base font-extrabold tracking-tight">🐱 {cat.name}</h1>
-            <span className="text-[10px] font-bold bg-primary/10 text-primary px-2 py-0.5 rounded-full">
+            <h1 className="text-base font-extrabold tracking-tight bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">🐱 {cat.name}</h1>
+            <span className="text-[10px] font-extrabold bg-primary/12 text-primary px-2 py-0.5 rounded-full border border-primary/20">
               Lv.{cat.level}
             </span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1.5 font-extrabold bg-accent/50 px-3 py-1 rounded-full text-xs text-coin-foreground">
+            <div className="flex items-center gap-1.5 font-extrabold bg-coin/15 border border-coin/20 px-3 py-1 rounded-full text-xs text-coin-foreground">
               🪙 <span className="tabular-nums">{cat.coins.toLocaleString()}</span>
             </div>
-            <button onClick={handleLogout} className="p-1.5 rounded-lg hover:bg-muted transition-colors bounce-click" title="Abmelden">
+            <button onClick={handleLogout} className="p-1.5 rounded-xl hover:bg-primary/10 transition-colors bounce-click" title="Abmelden">
               <LogOut className="w-4 h-4 text-muted-foreground" />
             </button>
           </div>
