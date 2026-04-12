@@ -135,6 +135,7 @@ export default {
         "coin-pop": "coin-pop 1s ease-out forwards",
         "heart-float": "heart-float 1s ease-out forwards",
         shimmer: "shimmer 2s linear infinite",
+        "bounce-in": "bounce-in 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55)",
       },
     },
   },
