@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { CAT_SKINS, type CatSkin } from "@/components/SkinShop";
 
 export type CatMood = "happy" | "content" | "tired" | "hungry" | "sad";
-export type GameTab = "cat" | "village" | "shop" | "quests" | "leaderboard" | "admin" | "minigames";
+export type GameTab = "cat" | "village" | "shop" | "quests" | "leaderboard" | "admin" | "minigames" | "garden";
 
 export interface ShopItem {
   id: string;
