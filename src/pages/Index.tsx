@@ -21,6 +21,7 @@ import AuthScreen from "@/components/AuthScreen";
 import { LogOut } from "lucide-react";
 import KawaiiBackground from "@/components/KawaiiBackground";
 import GardenScreen from "@/components/GardenScreen";
+import BroadcastPopup from "@/components/BroadcastPopup";
 
 export default function Index() {
   const [user, setUser] = useState<User | null>(null);
