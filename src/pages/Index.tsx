@@ -244,6 +244,11 @@ export default function Index() {
           <MiniGameScreen onReward={(coins) => addCoins(coins)} />
         )}
 
+        {activeTab === "garden" && (
+          <GardenScreen coins={cat.coins} onSpend={(amt) => addCoins(-amt)} onReward={(coins) => addCoins(coins)} />
+        )}
+
+
         {activeTab === "admin" && isAdmin && (
           <AdminPanel onSkipCooldowns={skipAllCooldowns} />
         )}
