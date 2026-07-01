@@ -44,6 +44,11 @@ export default function BottomNav({ activeTab, onTabChange, questBadge, isAdmin 
                     {questBadge}
                   </div>
                 )}
+                {tab.id === "garden" && (
+                  <div className="absolute -top-1.5 -right-3 px-1 py-0 rounded-full bg-gradient-to-r from-secondary to-primary text-[7px] font-extrabold text-primary-foreground uppercase tracking-wider leading-tight">
+                    Beta
+                  </div>
+                )}
               </div>
               <span className={`text-[9px] font-bold transition-colors ${isActive ? "text-primary" : ""}`}>{tab.label}</span>
               {isActive && (
