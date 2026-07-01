@@ -38,6 +38,59 @@ export type Database = {
         }
         Relationships: []
       }
+      broadcast_claims: {
+        Row: {
+          broadcast_id: string
+          claimed_at: string
+          user_id: string
+        }
+        Insert: {
+          broadcast_id: string
+          claimed_at?: string
+          user_id: string
+        }
+        Update: {
+          broadcast_id?: string
+          claimed_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "broadcast_claims_broadcast_id_fkey"
+            columns: ["broadcast_id"]
+            isOneToOne: false
+            referencedRelation: "broadcasts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      broadcasts: {
+        Row: {
+          amount: number
+          created_at: string
+          created_by: string
+          id: string
+          message: string
+          reward_type: string
+        }
+        Insert: {
+          amount?: number
+          created_at?: string
+          created_by: string
+          id?: string
+          message?: string
+          reward_type: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          created_by?: string
+          id?: string
+          message?: string
+          reward_type?: string
+        }
+        Relationships: []
+      }
       cat_skins: {
         Row: {
           id: string
