@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Shield, Search, Ban, Zap, Undo2, Users, Coins } from "lucide-react";
+import { Shield, Search, Ban, Zap, Undo2, Users, Coins, Megaphone } from "lucide-react";
 
 interface AdminPanelProps {
   onSkipCooldowns: () => void;
@@ -23,6 +23,9 @@ export default function AdminPanel({ onSkipCooldowns }: AdminPanelProps) {
   const [loading, setLoading] = useState(false);
   const [bannedList, setBannedList] = useState<BannedEntry[]>([]);
   const [bannedLoading, setBannedLoading] = useState(true);
+  const [broadcastType, setBroadcastType] = useState<"coins" | "xp">("coins");
+  const [broadcastAmount, setBroadcastAmount] = useState("");
+  const [broadcastMessage, setBroadcastMessage] = useState("");
 
   const showMsg = (text: string, type: "success" | "error") => {
     setMessage({ text, type });
@@ -106,6 +109,31 @@ export default function AdminPanel({ onSkipCooldowns }: AdminPanelProps) {
       setCoinAmount("");
     }
   };
+  const handleSendBroadcast = async () => {
+    const amt = parseInt(broadcastAmount, 10);
+    if (isNaN(amt) || amt <= 0) {
+      showMsg("Bitte gültige Anzahl eingeben", "error");
+      return;
+    }
+    setLoading(true);
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) { setLoading(false); return; }
+    const { error } = await supabase.from("broadcasts" as any).insert({
+      reward_type: broadcastType,
+      amount: amt,
+      message: broadcastMessage.trim(),
+      created_by: user.id,
+    });
+    setLoading(false);
+    if (error) {
+      showMsg(error.message, "error");
+    } else {
+      showMsg(`Broadcast an alle Spieler gesendet! 📢`, "success");
+      setBroadcastAmount("");
+      setBroadcastMessage("");
+    }
+  };
+
 
   return (
     <div className="space-y-4 tab-content-enter" key="admin">
@@ -212,6 +240,46 @@ export default function AdminPanel({ onSkipCooldowns }: AdminPanelProps) {
           className="w-full py-2.5 rounded-xl bg-amber-500 text-white font-bold text-sm hover:bg-amber-600 transition-colors active:scale-[0.97] disabled:opacity-50"
         >
           🪙 Münzen senden
+        </button>
+      </div>
+
+      {/* Broadcast Message */}
+      <div className="game-card p-4 space-y-3">
+        <h3 className="text-sm font-bold flex items-center gap-2"><Megaphone className="w-4 h-4 text-primary" /> Nachricht an alle Spieler</h3>
+        <div className="flex gap-2">
+          <button
+            onClick={() => setBroadcastType("coins")}
+            className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${broadcastType === "coins" ? "bg-amber-500 text-white" : "bg-muted text-muted-foreground"}`}
+          >
+            🪙 Münzen
+          </button>
+          <button
+            onClick={() => setBroadcastType("xp")}
+            className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${broadcastType === "xp" ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}
+          >
+            ⭐ XP
+          </button>
+        </div>
+        <input
+          value={broadcastAmount}
+          onChange={(e) => setBroadcastAmount(e.target.value.replace(/[^0-9]/g, ""))}
+          placeholder="Betrag (z. B. 100)"
+          className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm"
+        />
+        <textarea
+          value={broadcastMessage}
+          onChange={(e) => setBroadcastMessage(e.target.value.slice(0, 500))}
+          placeholder="Deine Nachricht an alle Spieler..."
+          rows={3}
+          className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm resize-none"
+        />
+        <div className="text-[10px] text-muted-foreground text-right">{broadcastMessage.length}/500</div>
+        <button
+          onClick={handleSendBroadcast}
+          disabled={loading || !broadcastAmount}
+          className="w-full py-2.5 rounded-xl bg-gradient-to-r from-primary to-secondary text-primary-foreground font-bold text-sm active:scale-[0.97] disabled:opacity-50"
+        >
+          📢 An alle senden
         </button>
       </div>
 

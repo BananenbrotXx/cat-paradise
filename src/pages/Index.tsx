@@ -21,6 +21,7 @@ import AuthScreen from "@/components/AuthScreen";
 import { LogOut } from "lucide-react";
 import KawaiiBackground from "@/components/KawaiiBackground";
 import GardenScreen from "@/components/GardenScreen";
+import BroadcastPopup from "@/components/BroadcastPopup";
 
 export default function Index() {
   const [user, setUser] = useState<User | null>(null);
@@ -34,7 +35,7 @@ export default function Index() {
     isAnimating, floatingCoins, floatingHearts,
     notification, completedQuests, totalQuests,
     actionCooldowns, skipAllCooldowns,
-    addCoins, offlineEarnings, collectOfflineEarnings,
+    addCoins, addXp, offlineEarnings, collectOfflineEarnings,
     gameLoaded, ownedSkins, buySkin, equipSkin, applyRandomEvent,
   } = useCatGame(user?.id);
 
@@ -132,6 +133,9 @@ export default function Index() {
     <div className="min-h-screen pb-20 relative">
       <KawaiiBackground />
       <NotificationToast message={notification} />
+
+      <BroadcastPopup userId={user.id} gameLoaded={gameLoaded} onCoins={addCoins} onXp={addXp} />
+
 
       {/* Daily Streak */}
       <DailyStreakPopup userId={user.id} onReward={(coins) => addCoins(coins)} />

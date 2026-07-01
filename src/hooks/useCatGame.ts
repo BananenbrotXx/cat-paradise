@@ -631,7 +631,7 @@ export function useCatGame(userId?: string | null) {
     isAnimating, floatingCoins, floatingHearts,
     notification, completedQuests, totalQuests: quests.length,
     actionCooldowns, skipAllCooldowns,
-    addCoins, offlineEarnings, collectOfflineEarnings,
+    addCoins, addXp, offlineEarnings, collectOfflineEarnings,
     gameLoaded, ownedSkins, buySkin, equipSkin, applyRandomEvent,
   };
 }
