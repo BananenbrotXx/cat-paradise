@@ -23,6 +23,9 @@ export default function AdminPanel({ onSkipCooldowns }: AdminPanelProps) {
   const [loading, setLoading] = useState(false);
   const [bannedList, setBannedList] = useState<BannedEntry[]>([]);
   const [bannedLoading, setBannedLoading] = useState(true);
+  const [broadcastType, setBroadcastType] = useState<"coins" | "xp">("coins");
+  const [broadcastAmount, setBroadcastAmount] = useState("");
+  const [broadcastMessage, setBroadcastMessage] = useState("");
 
   const showMsg = (text: string, type: "success" | "error") => {
     setMessage({ text, type });
