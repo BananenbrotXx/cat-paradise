@@ -20,6 +20,7 @@ import NotificationToast from "@/components/NotificationToast";
 import AuthScreen from "@/components/AuthScreen";
 import { LogOut } from "lucide-react";
 import KawaiiBackground from "@/components/KawaiiBackground";
+import GardenScreen from "@/components/GardenScreen";
 
 export default function Index() {
   const [user, setUser] = useState<User | null>(null);
