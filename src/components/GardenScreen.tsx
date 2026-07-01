@@ -3,7 +3,7 @@ import { Sprout, Clock } from "lucide-react";
 
 interface GardenScreenProps {
   coins: number;
-  onSpend: (amount: number) => boolean;
+  onSpend: (amount: number) => void;
   onReward: (coins: number) => void;
 }
 
