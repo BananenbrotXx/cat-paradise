@@ -243,6 +243,46 @@ export default function AdminPanel({ onSkipCooldowns }: AdminPanelProps) {
         </button>
       </div>
 
+      {/* Broadcast Message */}
+      <div className="game-card p-4 space-y-3">
+        <h3 className="text-sm font-bold flex items-center gap-2"><Megaphone className="w-4 h-4 text-primary" /> Nachricht an alle Spieler</h3>
+        <div className="flex gap-2">
+          <button
+            onClick={() => setBroadcastType("coins")}
+            className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${broadcastType === "coins" ? "bg-amber-500 text-white" : "bg-muted text-muted-foreground"}`}
+          >
+            🪙 Münzen
+          </button>
+          <button
+            onClick={() => setBroadcastType("xp")}
+            className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${broadcastType === "xp" ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}
+          >
+            ⭐ XP
+          </button>
+        </div>
+        <input
+          value={broadcastAmount}
+          onChange={(e) => setBroadcastAmount(e.target.value.replace(/[^0-9]/g, ""))}
+          placeholder="Betrag (z. B. 100)"
+          className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm"
+        />
+        <textarea
+          value={broadcastMessage}
+          onChange={(e) => setBroadcastMessage(e.target.value.slice(0, 500))}
+          placeholder="Deine Nachricht an alle Spieler..."
+          rows={3}
+          className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm resize-none"
+        />
+        <div className="text-[10px] text-muted-foreground text-right">{broadcastMessage.length}/500</div>
+        <button
+          onClick={handleSendBroadcast}
+          disabled={loading || !broadcastAmount}
+          className="w-full py-2.5 rounded-xl bg-gradient-to-r from-primary to-secondary text-primary-foreground font-bold text-sm active:scale-[0.97] disabled:opacity-50"
+        >
+          📢 An alle senden
+        </button>
+      </div>
+
       {/* Banned Users List */}
       <div className="game-card p-4 space-y-3">
         <h3 className="text-sm font-bold flex items-center gap-2"><Users className="w-4 h-4 text-destructive" /> Gebannte Spieler ({bannedList.length})</h3>
