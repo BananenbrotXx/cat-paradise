@@ -109,6 +109,31 @@ export default function AdminPanel({ onSkipCooldowns }: AdminPanelProps) {
       setCoinAmount("");
     }
   };
+  const handleSendBroadcast = async () => {
+    const amt = parseInt(broadcastAmount, 10);
+    if (isNaN(amt) || amt <= 0) {
+      showMsg("Bitte gültige Anzahl eingeben", "error");
+      return;
+    }
+    setLoading(true);
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) { setLoading(false); return; }
+    const { error } = await supabase.from("broadcasts" as any).insert({
+      reward_type: broadcastType,
+      amount: amt,
+      message: broadcastMessage.trim(),
+      created_by: user.id,
+    });
+    setLoading(false);
+    if (error) {
+      showMsg(error.message, "error");
+    } else {
+      showMsg(`Broadcast an alle Spieler gesendet! 📢`, "success");
+      setBroadcastAmount("");
+      setBroadcastMessage("");
+    }
+  };
+
 
   return (
     <div className="space-y-4 tab-content-enter" key="admin">
