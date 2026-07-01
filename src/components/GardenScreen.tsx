@@ -61,7 +61,7 @@ export default function GardenScreen({ coins, onSpend, onReward }: GardenScreenP
     const plot = plots[idx];
     if (!plot.plantedAt || !plot.crop) {
       if (coins < selected.cost) return;
-      if (!onSpend(selected.cost)) return;
+      onSpend(selected.cost);
       setPlots((prev) => prev.map((p, i) => (i === idx ? { plantedAt: Date.now(), crop: selected } : p)));
     } else {
       const ready = now - plot.plantedAt >= plot.crop.growMs;
