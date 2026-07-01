@@ -13,6 +13,7 @@ const BASE_TABS: { id: GameTab; label: string; icon: React.FC<{ className?: stri
   { id: "village", label: "Dorf", icon: MapPin, emoji: "🏘️" },
   { id: "shop", label: "Shop", icon: ShoppingBag, emoji: "🛍️" },
   { id: "minigames", label: "Spiele", icon: Gamepad2, emoji: "🎮" },
+  { id: "garden", label: "Garten", icon: Gamepad2, emoji: "🌱" },
   { id: "quests", label: "Quests", icon: Scroll, emoji: "📜" },
   { id: "leaderboard", label: "Rang", icon: Trophy, emoji: "🏆" },
 ];
