@@ -134,6 +134,9 @@ export default function Index() {
       <KawaiiBackground />
       <NotificationToast message={notification} />
 
+      <BroadcastPopup userId={user.id} gameLoaded={gameLoaded} onCoins={addCoins} onXp={addXp} />
+
+
       {/* Daily Streak */}
       <DailyStreakPopup userId={user.id} onReward={(coins) => addCoins(coins)} />
 
