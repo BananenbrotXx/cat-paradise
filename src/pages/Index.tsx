@@ -35,7 +35,7 @@ export default function Index() {
     isAnimating, floatingCoins, floatingHearts,
     notification, completedQuests, totalQuests,
     actionCooldowns, skipAllCooldowns,
-    addCoins, offlineEarnings, collectOfflineEarnings,
+    addCoins, addXp, offlineEarnings, collectOfflineEarnings,
     gameLoaded, ownedSkins, buySkin, equipSkin, applyRandomEvent,
   } = useCatGame(user?.id);
 
