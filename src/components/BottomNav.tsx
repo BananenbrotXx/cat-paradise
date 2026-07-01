@@ -13,6 +13,7 @@ const BASE_TABS: { id: GameTab; label: string; icon: React.FC<{ className?: stri
   { id: "village", label: "Dorf", icon: MapPin, emoji: "🏘️" },
   { id: "shop", label: "Shop", icon: ShoppingBag, emoji: "🛍️" },
   { id: "minigames", label: "Spiele", icon: Gamepad2, emoji: "🎮" },
+  { id: "garden", label: "Garten", icon: Gamepad2, emoji: "🌱" },
   { id: "quests", label: "Quests", icon: Scroll, emoji: "📜" },
   { id: "leaderboard", label: "Rang", icon: Trophy, emoji: "🏆" },
 ];
@@ -41,6 +42,11 @@ export default function BottomNav({ activeTab, onTabChange, questBadge, isAdmin 
                 {showBadge && (
                   <div className="absolute -top-1 -right-2.5 w-4 h-4 rounded-full bg-secondary text-[8px] font-extrabold text-primary-foreground flex items-center justify-center animate-bounce-in">
                     {questBadge}
+                  </div>
+                )}
+                {tab.id === "garden" && (
+                  <div className="absolute -top-1.5 -right-3 px-1 py-0 rounded-full bg-gradient-to-r from-secondary to-primary text-[7px] font-extrabold text-primary-foreground uppercase tracking-wider leading-tight">
+                    Beta
                   </div>
                 )}
               </div>
