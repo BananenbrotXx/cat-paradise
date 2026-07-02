@@ -131,5 +131,42 @@ Deno.serve(async (req) => {
     return new Response(JSON.stringify({ success: true }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
   }
 
+  // LIST BROADCASTS with claim status per player
+  if (action === "list_broadcasts") {
+    const { data: broadcasts } = await adminClient
+      .from("broadcasts")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .limit(50);
+
+    const { data: profiles } = await adminClient.from("profiles").select("user_id, display_name");
+    const totalPlayers = profiles?.length || 0;
+
+    const results = [];
+    for (const b of broadcasts || []) {
+      const { data: claims } = await adminClient
+        .from("broadcast_claims")
+        .select("user_id, claimed_at")
+        .eq("broadcast_id", b.id);
+      const claimedIds = new Set((claims || []).map((c: any) => c.user_id));
+      const players = (profiles || []).map((p: any) => ({
+        display_name: p.display_name,
+        claimed: claimedIds.has(p.user_id),
+        claimed_at: (claims || []).find((c: any) => c.user_id === p.user_id)?.claimed_at || null,
+      }));
+      results.push({
+        id: b.id,
+        created_at: b.created_at,
+        reward_type: b.reward_type,
+        amount: b.amount,
+        message: b.message,
+        claimed_count: claimedIds.size,
+        total_players: totalPlayers,
+        players,
+      });
+    }
+    return new Response(JSON.stringify(results), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+  }
+
   return new Response(JSON.stringify({ error: "Unknown action" }), { status: 400, headers: corsHeaders });
 });
