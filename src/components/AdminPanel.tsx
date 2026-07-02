@@ -147,6 +147,7 @@ export default function AdminPanel({ onSkipCooldowns }: AdminPanelProps) {
       showMsg(`Broadcast an alle Spieler gesendet! 📢`, "success");
       setBroadcastAmount("");
       setBroadcastMessage("");
+      fetchBroadcastHistory();
     }
   };
 
