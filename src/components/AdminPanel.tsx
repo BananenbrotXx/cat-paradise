@@ -365,6 +365,28 @@ export default function AdminPanel({ onSkipCooldowns }: AdminPanelProps) {
           className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm resize-none"
         />
         <div className="text-[10px] text-muted-foreground text-right">{broadcastMessage.length}/500</div>
+
+        {/* Live Preview */}
+        {(broadcastAmount || broadcastMessage) && (
+          <div className="p-3 rounded-xl border-2 border-dashed border-primary/40 bg-primary/5 space-y-2">
+            <div className="text-[10px] font-bold text-primary uppercase tracking-wider">👀 Vorschau</div>
+            <div className="p-3 rounded-lg bg-background border border-border shadow-sm">
+              <div className="flex items-center gap-2 mb-1.5">
+                <span className="text-lg">{broadcastType === "coins" ? "🪙" : "⭐"}</span>
+                <span className="font-extrabold text-sm">
+                  +{broadcastAmount || "0"} {broadcastType === "coins" ? "Münzen" : "XP"}
+                </span>
+              </div>
+              {broadcastMessage.trim() && (
+                <p className="text-xs text-foreground/80 whitespace-pre-wrap">{broadcastMessage}</p>
+              )}
+              <p className="text-[9px] text-muted-foreground mt-2 italic">
+                So sehen es alle Spieler beim nächsten Öffnen
+              </p>
+            </div>
+          </div>
+        )}
+
         <button
           onClick={handleSendBroadcast}
           disabled={loading || !broadcastAmount}
@@ -372,6 +394,80 @@ export default function AdminPanel({ onSkipCooldowns }: AdminPanelProps) {
         >
           📢 An alle senden
         </button>
+      </div>
+
+      {/* Broadcast History */}
+      <div className="game-card p-4 space-y-3">
+        <div className="flex items-center justify-between">
+          <h3 className="text-sm font-bold flex items-center gap-2"><History className="w-4 h-4 text-primary" /> Broadcast-Verlauf ({broadcastHistory.length})</h3>
+          <button onClick={fetchBroadcastHistory} className="text-[10px] font-bold text-primary hover:underline">↻ Aktualisieren</button>
+        </div>
+        {historyLoading ? (
+          <div className="space-y-2">
+            {[1, 2].map((i) => <div key={i} className="h-16 rounded-lg bg-muted/50 animate-pulse" />)}
+          </div>
+        ) : broadcastHistory.length === 0 ? (
+          <p className="text-xs text-muted-foreground">Noch keine Broadcasts gesendet.</p>
+        ) : (
+          <div className="space-y-2">
+            {broadcastHistory.map((b) => {
+              const isOpen = expandedBroadcast === b.id;
+              const pending = b.total_players - b.claimed_count;
+              return (
+                <div key={b.id} className="rounded-lg bg-muted/40 border border-border overflow-hidden">
+                  <button
+                    onClick={() => setExpandedBroadcast(isOpen ? null : b.id)}
+                    className="w-full p-3 text-left flex items-center gap-2 hover:bg-muted/60 transition-colors"
+                  >
+                    <span className="text-lg">{b.reward_type === "coins" ? "🪙" : "⭐"}</span>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-extrabold">+{b.amount}</span>
+                        <span className="text-[10px] font-bold text-muted-foreground">{b.reward_type === "coins" ? "Münzen" : "XP"}</span>
+                      </div>
+                      <p className="text-[10px] text-muted-foreground">
+                        {new Date(b.created_at).toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" })}
+                      </p>
+                      {b.message && <p className="text-[11px] text-foreground/70 truncate mt-0.5 italic">"{b.message}"</p>}
+                    </div>
+                    <div className="text-right shrink-0">
+                      <div className="text-[10px] font-bold text-green-600 flex items-center gap-0.5 justify-end">
+                        <Check className="w-3 h-3" /> {b.claimed_count}
+                      </div>
+                      <div className="text-[10px] font-bold text-amber-600 flex items-center gap-0.5 justify-end">
+                        <Clock className="w-3 h-3" /> {pending}
+                      </div>
+                    </div>
+                    {isOpen ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
+                  </button>
+                  {isOpen && (
+                    <div className="border-t border-border bg-background/50 max-h-64 overflow-y-auto">
+                      {b.players.length === 0 ? (
+                        <p className="text-[11px] text-muted-foreground p-3">Keine Spieler.</p>
+                      ) : (
+                        b.players.map((p: any) => (
+                          <div key={p.display_name} className="flex items-center justify-between px-3 py-2 border-b border-border/50 last:border-0">
+                            <span className="text-xs font-semibold truncate">{p.display_name}</span>
+                            {p.claimed ? (
+                              <span className="text-[10px] font-bold text-green-600 flex items-center gap-1 shrink-0">
+                                <Check className="w-3 h-3" />
+                                {p.claimed_at ? new Date(p.claimed_at).toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }) : "Abgeholt"}
+                              </span>
+                            ) : (
+                              <span className="text-[10px] font-bold text-amber-600 flex items-center gap-1 shrink-0">
+                                <Clock className="w-3 h-3" /> Ausstehend
+                              </span>
+                            )}
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       {/* Banned Users List */}
