@@ -29,6 +29,9 @@ export default function AdminPanel({ onSkipCooldowns }: AdminPanelProps) {
   const [renameOld, setRenameOld] = useState("");
   const [renameNew, setRenameNew] = useState("");
   const [newPassword, setNewPassword] = useState("");
+  const [broadcastHistory, setBroadcastHistory] = useState<any[]>([]);
+  const [historyLoading, setHistoryLoading] = useState(true);
+  const [expandedBroadcast, setExpandedBroadcast] = useState<string | null>(null);
 
   const showMsg = (text: string, type: "success" | "error") => {
     setMessage({ text, type });
