@@ -137,6 +137,36 @@ export default function AdminPanel({ onSkipCooldowns }: AdminPanelProps) {
     }
   };
 
+  const handleRename = async () => {
+    if (!renameOld.trim() || !renameNew.trim()) return;
+    setLoading(true);
+    const res = await callAdmin("rename_user", { display_name: renameOld.trim(), new_name: renameNew.trim() });
+    setLoading(false);
+    if (res?.error || res?.data?.error) {
+      showMsg(res?.data?.error || "Fehler", "error");
+    } else {
+      showMsg(`${renameOld} → ${renameNew} ✅`, "success");
+      setRenameOld("");
+      setRenameNew("");
+    }
+  };
+
+  const handleSetPassword = async () => {
+    if (!lookupResult || !newPassword) return;
+    if (newPassword.length < 6) {
+      showMsg("Passwort mind. 6 Zeichen", "error");
+      return;
+    }
+    setLoading(true);
+    const res = await callAdmin("set_password", { display_name: lookupResult.display_name, new_password: newPassword });
+    setLoading(false);
+    if (res?.error || res?.data?.error) {
+      showMsg(res?.data?.error || "Fehler", "error");
+    } else {
+      showMsg(`Neues Passwort für ${lookupResult.display_name} gesetzt ✅`, "success");
+      setNewPassword("");
+    }
+  };
 
   return (
     <div className="space-y-4 tab-content-enter" key="admin">
