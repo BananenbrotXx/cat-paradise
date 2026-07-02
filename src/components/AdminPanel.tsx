@@ -56,8 +56,18 @@ export default function AdminPanel({ onSkipCooldowns }: AdminPanelProps) {
     setBannedLoading(false);
   };
 
+  const fetchBroadcastHistory = async () => {
+    setHistoryLoading(true);
+    const res = await callAdmin("list_broadcasts", {});
+    if (res?.data && Array.isArray(res.data)) {
+      setBroadcastHistory(res.data);
+    }
+    setHistoryLoading(false);
+  };
+
   useEffect(() => {
     fetchBannedList();
+    fetchBroadcastHistory();
   }, []);
 
   const handleLookup = async () => {
