@@ -26,6 +26,9 @@ export default function AdminPanel({ onSkipCooldowns }: AdminPanelProps) {
   const [broadcastType, setBroadcastType] = useState<"coins" | "xp">("coins");
   const [broadcastAmount, setBroadcastAmount] = useState("");
   const [broadcastMessage, setBroadcastMessage] = useState("");
+  const [renameOld, setRenameOld] = useState("");
+  const [renameNew, setRenameNew] = useState("");
+  const [newPassword, setNewPassword] = useState("");
 
   const showMsg = (text: string, type: "success" | "error") => {
     setMessage({ text, type });
