@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Shield, Search, Ban, Zap, Undo2, Users, Coins, Megaphone } from "lucide-react";
+import { Shield, Search, Ban, Zap, Undo2, Users, Coins, Megaphone, Pencil, KeyRound } from "lucide-react";
 
 interface AdminPanelProps {
   onSkipCooldowns: () => void;
