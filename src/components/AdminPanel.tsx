@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Shield, Search, Ban, Zap, Undo2, Users, Coins, Megaphone } from "lucide-react";
+import { Shield, Search, Ban, Zap, Undo2, Users, Coins, Megaphone, Pencil, KeyRound } from "lucide-react";
 
 interface AdminPanelProps {
   onSkipCooldowns: () => void;
@@ -26,6 +26,9 @@ export default function AdminPanel({ onSkipCooldowns }: AdminPanelProps) {
   const [broadcastType, setBroadcastType] = useState<"coins" | "xp">("coins");
   const [broadcastAmount, setBroadcastAmount] = useState("");
   const [broadcastMessage, setBroadcastMessage] = useState("");
+  const [renameOld, setRenameOld] = useState("");
+  const [renameNew, setRenameNew] = useState("");
+  const [newPassword, setNewPassword] = useState("");
 
   const showMsg = (text: string, type: "success" | "error") => {
     setMessage({ text, type });
@@ -134,6 +137,36 @@ export default function AdminPanel({ onSkipCooldowns }: AdminPanelProps) {
     }
   };
 
+  const handleRename = async () => {
+    if (!renameOld.trim() || !renameNew.trim()) return;
+    setLoading(true);
+    const res = await callAdmin("rename_user", { display_name: renameOld.trim(), new_name: renameNew.trim() });
+    setLoading(false);
+    if (res?.error || res?.data?.error) {
+      showMsg(res?.data?.error || "Fehler", "error");
+    } else {
+      showMsg(`${renameOld} → ${renameNew} ✅`, "success");
+      setRenameOld("");
+      setRenameNew("");
+    }
+  };
+
+  const handleSetPassword = async () => {
+    if (!lookupResult || !newPassword) return;
+    if (newPassword.length < 6) {
+      showMsg("Passwort mind. 6 Zeichen", "error");
+      return;
+    }
+    setLoading(true);
+    const res = await callAdmin("set_password", { display_name: lookupResult.display_name, new_password: newPassword });
+    setLoading(false);
+    if (res?.error || res?.data?.error) {
+      showMsg(res?.data?.error || "Fehler", "error");
+    } else {
+      showMsg(`Neues Passwort für ${lookupResult.display_name} gesetzt ✅`, "success");
+      setNewPassword("");
+    }
+  };
 
   return (
     <div className="space-y-4 tab-content-enter" key="admin">
@@ -175,11 +208,55 @@ export default function AdminPanel({ onSkipCooldowns }: AdminPanelProps) {
           </button>
         </div>
         {lookupResult && (
-          <div className="p-3 rounded-lg bg-muted/50 text-sm space-y-1">
+          <div className="p-3 rounded-lg bg-muted/50 text-sm space-y-2">
             <p><span className="font-bold">Name:</span> {lookupResult.display_name}</p>
             <p><span className="font-bold">E-Mail:</span> {lookupResult.email}</p>
+            <p className="text-[10px] text-muted-foreground italic">
+              🔒 Passwörter sind verschlüsselt und können nicht angezeigt werden. Du kannst aber ein neues setzen:
+            </p>
+            <div className="flex gap-2 pt-1">
+              <input
+                type="text"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                placeholder="Neues Passwort (min. 6)"
+                className="flex-1 px-3 py-2 rounded-lg border border-border bg-background text-sm"
+              />
+              <button
+                onClick={handleSetPassword}
+                disabled={loading || newPassword.length < 6}
+                className="px-3 py-2 rounded-lg bg-primary text-primary-foreground font-bold text-xs hover:bg-primary/90 active:scale-[0.97] disabled:opacity-50 flex items-center gap-1"
+              >
+                <KeyRound className="w-3.5 h-3.5" /> Setzen
+              </button>
+            </div>
           </div>
         )}
+      </div>
+
+      {/* Rename User */}
+      <div className="game-card p-4 space-y-3">
+        <h3 className="text-sm font-bold flex items-center gap-2"><Pencil className="w-4 h-4 text-secondary" /> Namen ändern</h3>
+        <input
+          value={renameOld}
+          onChange={(e) => setRenameOld(e.target.value)}
+          placeholder="Alter Anzeigename..."
+          className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm"
+        />
+        <input
+          value={renameNew}
+          onChange={(e) => setRenameNew(e.target.value)}
+          placeholder="Neuer Anzeigename (2-24 Zeichen)"
+          maxLength={24}
+          className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm"
+        />
+        <button
+          onClick={handleRename}
+          disabled={loading || !renameOld.trim() || !renameNew.trim()}
+          className="w-full py-2.5 rounded-xl bg-secondary text-secondary-foreground font-bold text-sm hover:bg-secondary/90 transition-colors active:scale-[0.97] disabled:opacity-50"
+        >
+          ✏️ Namen ändern
+        </button>
       </div>
 
       {/* Ban User */}

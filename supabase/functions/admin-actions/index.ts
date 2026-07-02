@@ -95,5 +95,41 @@ Deno.serve(async (req) => {
     return new Response(JSON.stringify({ success: true, new_coins: newCoins }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
   }
 
+  // RENAME user
+  if (action === "rename_user") {
+    const { display_name, new_name } = params;
+    const cleaned = (new_name || "").trim();
+    if (!cleaned || cleaned.length < 2 || cleaned.length > 24) {
+      return new Response(JSON.stringify({ error: "Name muss 2-24 Zeichen lang sein" }), { status: 400, headers: corsHeaders });
+    }
+    const { data: profile } = await adminClient.from("profiles").select("user_id").eq("display_name", display_name).maybeSingle();
+    if (!profile) return new Response(JSON.stringify({ error: "User not found" }), { status: 404, headers: corsHeaders });
+
+    // Check name not already taken
+    const { data: existing } = await adminClient.from("profiles").select("user_id").eq("display_name", cleaned).maybeSingle();
+    if (existing && existing.user_id !== profile.user_id) {
+      return new Response(JSON.stringify({ error: "Name bereits vergeben" }), { status: 400, headers: corsHeaders });
+    }
+
+    await adminClient.from("profiles").update({ display_name: cleaned }).eq("user_id", profile.user_id);
+    await adminClient.from("leaderboard").update({ display_name: cleaned }).eq("user_id", profile.user_id);
+    await adminClient.auth.admin.updateUserById(profile.user_id, { user_metadata: { display_name: cleaned } });
+    return new Response(JSON.stringify({ success: true, new_name: cleaned }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+  }
+
+  // SET new password for user
+  if (action === "set_password") {
+    const { display_name, new_password } = params;
+    if (!new_password || new_password.length < 6) {
+      return new Response(JSON.stringify({ error: "Passwort muss mind. 6 Zeichen lang sein" }), { status: 400, headers: corsHeaders });
+    }
+    const { data: profile } = await adminClient.from("profiles").select("user_id").eq("display_name", display_name).maybeSingle();
+    if (!profile) return new Response(JSON.stringify({ error: "User not found" }), { status: 404, headers: corsHeaders });
+
+    const { error } = await adminClient.auth.admin.updateUserById(profile.user_id, { password: new_password });
+    if (error) return new Response(JSON.stringify({ error: error.message }), { status: 400, headers: corsHeaders });
+    return new Response(JSON.stringify({ success: true }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+  }
+
   return new Response(JSON.stringify({ error: "Unknown action" }), { status: 400, headers: corsHeaders });
 });
